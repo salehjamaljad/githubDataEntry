@@ -4,8 +4,8 @@ from stockKeepingDataEntry import stock_app
 
 # Demo user credentials
 users = {
-    "pricing_user": {"password": "pricing123", "access": "pricing"},
-    "stock_user": {"password": "stock123", "access": "stock"},
+    "khodar": {"password": "pricing", "access": "pricing"},
+    "khodar": {"password": "stock", "access": "stock"},
 }
 
 def main():
