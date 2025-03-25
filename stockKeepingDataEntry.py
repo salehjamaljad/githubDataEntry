@@ -164,7 +164,8 @@ def stock_app():
                             "الوزن الصافي", min_value=0.1, value=float(selected_row["وزن صافي"])
                         )
                         notes = st.text_area("ملاحظات", value="" if pd.isna(selected_row["ملاحظات"]) else selected_row["ملاحظات"])
-
+                    
+                        # ✅ Ensure this button is inside the `with st.form()` block
                         update_button = st.form_submit_button(label="تحديث البيانات")
 
                         if update_button:
