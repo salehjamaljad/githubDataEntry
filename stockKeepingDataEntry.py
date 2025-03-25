@@ -82,7 +82,7 @@ def stock_app():
                 existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
 
                 # ✅ Ensure correct date format
-                existing_data["تاريخ الشراء"] = pd.to_datetime(existing_data["تاريخ الشراء"], errors="coerce").dt.strftime("%Y-%m-%d")
+                existing_data["تاريخ الشراء"] = pd.to_datetime(     existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce" ).dt.strftime("%Y-%m-%d")
                 purchase_date_str = purchase_date.strftime("%Y-%m-%d")
 
                 # 🔍 Check for duplicates
@@ -125,7 +125,7 @@ def stock_app():
         existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
 
         # Ensure correct date format
-        existing_data["تاريخ الشراء"] = pd.to_datetime(existing_data["تاريخ الشراء"], errors="coerce").dt.strftime("%Y-%m-%d")
+        existing_data["تاريخ الشراء"] = pd.to_datetime(     existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce" ).dt.strftime("%Y-%m-%d")
 
         # Select product to update
         product_to_update = st.selectbox("اختر الصنف", options=existing_data["اسم الصنف"].unique().tolist(), index=None)
@@ -201,7 +201,7 @@ def stock_app():
         existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
 
         # Ensure correct date format
-        existing_data["تاريخ الشراء"] = pd.to_datetime(existing_data["تاريخ الشراء"], errors="coerce").dt.strftime("%Y-%m-%d")
+        existing_data["تاريخ الشراء"] = pd.to_datetime(     existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce" ).dt.strftime("%Y-%m-%d")
 
         # Select product to delete
         product_to_delete = st.selectbox("اختر الصنف", options=existing_data["اسم الصنف"].unique().tolist(), index=None)
