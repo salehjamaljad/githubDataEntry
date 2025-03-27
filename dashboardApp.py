@@ -1036,7 +1036,7 @@ def dashboardApp():
 
         return pd.DataFrame(extracted_data)
 
-    df_invoices = pd.DataFrame()
+    global df_invoices
     def process_zip(zip_file):
         """Extract files from ZIP and process .docx invoices."""
         global df_invoices  # Declare the global variable
@@ -1044,19 +1044,18 @@ def dashboardApp():
         extracted_folder = tempfile.mkdtemp()
         with zipfile.ZipFile(zip_file, 'r') as z:
             z.extractall(extracted_folder)
-
+        
         docx_files = [os.path.join(extracted_folder, f) for f in os.listdir(extracted_folder) if f.endswith(".docx") and "طلبات" in f]
-
         if not docx_files:
-            df_invoices = pd.DataFrame()  # Assign an empty DataFrame
+            df_invoices = pd.DataFrame()  # Assign an empty DataFrame to the global variable
             return df_invoices, "No matching .docx files found."
-
+        
         df_invoices = pd.concat([extract_description_and_price(file) for file in docx_files], ignore_index=True)
         df_invoices.replace(to_replace={'': None}, inplace=True)
         df_invoices = df_invoices[df_invoices["Product"] != "Arabic Description"].reset_index(drop=True)
         df_invoices.dropna(inplace=True)
         df_invoices = df_invoices[pd.to_numeric(df_invoices["Price"], errors="coerce").notna()]
-
+        
         return df_invoices, None
 
     st.title("Invoice Data Extractor")
