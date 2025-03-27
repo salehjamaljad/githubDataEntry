@@ -1036,15 +1036,20 @@ def dashboardApp():
 
         return pd.DataFrame(extracted_data)
 
+    df_invoices = pd.DataFrame()
     def process_zip(zip_file):
         """Extract files from ZIP and process .docx invoices."""
+        global df_invoices  # Declare the global variable
+
         extracted_folder = tempfile.mkdtemp()
         with zipfile.ZipFile(zip_file, 'r') as z:
             z.extractall(extracted_folder)
 
         docx_files = [os.path.join(extracted_folder, f) for f in os.listdir(extracted_folder) if f.endswith(".docx") and "طلبات" in f]
+
         if not docx_files:
-            return pd.DataFrame(), "No matching .docx files found."
+            df_invoices = pd.DataFrame()  # Assign an empty DataFrame
+            return df_invoices, "No matching .docx files found."
 
         df_invoices = pd.concat([extract_description_and_price(file) for file in docx_files], ignore_index=True)
         df_invoices.replace(to_replace={'': None}, inplace=True)
