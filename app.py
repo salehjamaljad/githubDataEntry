@@ -4,9 +4,9 @@ from stockKeepingDataEntry import stock_app
 from dashboardApp import dashboardApp
 # Demo user credentials
 users = {
-    "pricing_user": {"password": "pricing123", "access": "pricing"},
-    "stock_user": {"password": "stock123", "access": "stock"},
-    "dashboard_user": {"password": "dashboard123", "access": "dashboard"},
+    "khodar1": {"password": "pricing", "access": "pricing"},
+    "khodar2": {"password": "stock", "access": "stock"},
+    "khodar3": {"password": "dashboard", "access": "dashboard"}
 }
 
 def main():
