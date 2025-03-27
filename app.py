@@ -1,11 +1,12 @@
 import streamlit as st
 from pricingDataEntry import pricing_app
 from stockKeepingDataEntry import stock_app
-
+from dashboardApp import dashboardApp
 # Demo user credentials
 users = {
     "pricing_user": {"password": "pricing123", "access": "pricing"},
     "stock_user": {"password": "stock123", "access": "stock"},
+    "dashboard_user": {"password": "dashboard123", "access": "dashboard"},
 }
 
 def main():
@@ -19,7 +20,7 @@ def main():
             st.session_state["logged_in"] = True
             st.session_state["access"] = users[username]["access"]
             st.success("Login successful!")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Invalid username or password.")
 
@@ -30,3 +31,5 @@ else:
         pricing_app()
     elif st.session_state["access"] == "stock":
         stock_app()
+    elif st.session_state["access"] == "dashboard":
+        dashboardApp()
