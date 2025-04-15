@@ -1,7 +1,6 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
-
 def stock_app():
     st.title("Stock-Keeping Data Entry")
 
@@ -46,7 +45,7 @@ def stock_app():
 
     branch = st.selectbox("اختر الفرع", ['Cairo', 'Alexandria'])
     # 🛠 Read existing data
-    existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
+    existing_data = conn.read(worksheet=branch, usecols=list(range(11)), ttl=5).dropna(how="all")
 
     action = st.selectbox(
         "Choose an Action",
@@ -79,7 +78,7 @@ def stock_app():
                     st.stop()
 
                 # 🛠 Read existing data
-                existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
+                existing_data = conn.read(worksheet=branch, usecols=list(range(11)), ttl=5).dropna(how="all")
 
                 # ✅ Ensure correct date format
                 existing_data["تاريخ الشراء"] = pd.to_datetime(     existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce" ).dt.strftime("%Y-%m-%d")
@@ -100,6 +99,7 @@ def stock_app():
                     storage_data = pd.DataFrame(
                         [
                             {
+                                "ID": purchase_date_str.replace("-",""),
                                 "اسم الصنف": product,
                                 "عدد العبوات": num_containers,
                                 "وزن العبوات": (gross_weight - net_weight) / num_containers,
@@ -122,35 +122,43 @@ def stock_app():
         st.markdown("اختر الصنف والمورد وتاريخ الشراء لتحديث بياناته")
 
         # Read and clean existing data
-        existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
+        existing_data = conn.read(worksheet=branch, usecols=list(range(11)), ttl=5).dropna(how="all")
 
         # Ensure correct date format
         existing_data["تاريخ الشراء"] = pd.to_datetime(     existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce" ).dt.strftime("%Y-%m-%d")
 
         # Select product to update
-        product_to_update = st.selectbox("اختر الصنف", options=existing_data["اسم الصنف"].unique().tolist(), index=None)
-        if product_to_update:
-            provider_to_update = st.selectbox(
-                "اختر المورد", 
-                options=existing_data[existing_data["اسم الصنف"] == product_to_update]["مورد الشركة"].unique().tolist(), 
+        purchase_date_to_update = st.selectbox(
+            "اختر تاريخ الشراء",
+            options=existing_data["تاريخ الشراء"].unique().tolist(),
+            index=None
+        )
+
+        if purchase_date_to_update:
+            product_to_update = st.selectbox(
+                "اختر الصنف",
+                options=existing_data[
+                    existing_data["تاريخ الشراء"] == purchase_date_to_update
+                ]["اسم الصنف"].unique().tolist(),
                 index=None
             )
-            if provider_to_update:
-                purchase_date_to_update = st.selectbox(
-                    "اختر تاريخ الشراء", 
+
+            if product_to_update:
+                provider_to_update = st.selectbox(
+                    "اختر المورد",
                     options=existing_data[
-                        (existing_data["اسم الصنف"] == product_to_update) & 
-                        (existing_data["مورد الشركة"] == provider_to_update)
-                    ]["تاريخ الشراء"].unique().tolist(),
+                        (existing_data["تاريخ الشراء"] == purchase_date_to_update) &
+                        (existing_data["اسم الصنف"] == product_to_update)
+                    ]["مورد الشركة"].unique().tolist(),
                     index=None
                 )
 
-                if purchase_date_to_update:
+                if provider_to_update:
                     # Retrieve selected row for editing
                     selected_row = existing_data[
-                        (existing_data["اسم الصنف"] == product_to_update) & 
-                        (existing_data["مورد الشركة"] == provider_to_update) & 
-                        (existing_data["تاريخ الشراء"] == purchase_date_to_update)
+                        (existing_data["تاريخ الشراء"] == purchase_date_to_update) &
+                        (existing_data["اسم الصنف"] == product_to_update) &
+                        (existing_data["مورد الشركة"] == provider_to_update)
                     ].iloc[0]
 
                     with st.form(key="update_form"):
@@ -174,6 +182,7 @@ def stock_app():
 
                             # Create updated entry
                             updated_row = pd.DataFrame([{
+                                "ID": purchase_date_to_update.replace("-",""),
                                 "اسم الصنف": product_to_update,
                                 "عدد العبوات": num_containers,
                                 "وزن العبوات": (gross_weight - net_weight) / num_containers,
@@ -196,50 +205,66 @@ def stock_app():
         st.dataframe(existing_data)
     # حذف الصنف
     elif action == "حذف الصنف":
-        st.markdown("اختر الصنف والمورد وتاريخ الشراء لحذفه")
+        st.markdown("اختر تاريخ الشراء ثم الصنف ثم المورد لحذف الصف")
 
         # Read and clean existing data
-        existing_data = conn.read(worksheet=branch, usecols=list(range(10)), ttl=5).dropna(how="all")
+        existing_data = conn.read(worksheet=branch, usecols=list(range(11)), ttl=5).dropna(how="all")
 
         # Ensure correct date format
-        existing_data["تاريخ الشراء"] = pd.to_datetime(     existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce" ).dt.strftime("%Y-%m-%d")
+        existing_data["تاريخ الشراء"] = pd.to_datetime(
+            existing_data["تاريخ الشراء"], dayfirst=True, errors="coerce"
+        ).dt.strftime("%Y-%m-%d")
 
-        # Select product to delete
-        product_to_delete = st.selectbox("اختر الصنف", options=existing_data["اسم الصنف"].unique().tolist(), index=None)
-        
-        if product_to_delete:
-            provider_to_delete = st.selectbox(
-                "اختر المورد", 
-                options=existing_data[existing_data["اسم الصنف"] == product_to_delete]["مورد الشركة"].unique().tolist(), 
+        # Start with purchase date
+        purchase_date_to_delete = st.selectbox(
+            "اختر تاريخ الشراء",
+            options=existing_data["تاريخ الشراء"].unique().tolist(),
+            index=None
+        )
+
+        if purchase_date_to_delete:
+            product_to_delete = st.selectbox(
+                "اختر الصنف",
+                options=existing_data[
+                    existing_data["تاريخ الشراء"] == purchase_date_to_delete
+                ]["اسم الصنف"].unique().tolist(),
                 index=None
             )
 
-            if provider_to_delete:
-                purchase_date_to_delete = st.selectbox(
-                    "اختر تاريخ الشراء", 
+            if product_to_delete:
+                provider_to_delete = st.selectbox(
+                    "اختر المورد",
                     options=existing_data[
-                        (existing_data["اسم الصنف"] == product_to_delete) & 
-                        (existing_data["مورد الشركة"] == provider_to_delete)
-                    ]["تاريخ الشراء"].unique().tolist(),
+                        (existing_data["تاريخ الشراء"] == purchase_date_to_delete) &
+                        (existing_data["اسم الصنف"] == product_to_delete)
+                    ]["مورد الشركة"].unique().tolist(),
                     index=None
                 )
 
-                if purchase_date_to_delete:
-                    # Display confirmation message
-                    st.warning(f"هل أنت متأكد أنك تريد حذف {product_to_delete} من {provider_to_delete} بتاريخ {purchase_date_to_delete}؟")
+                if provider_to_delete:
+                    # Get the row to be deleted
+                    filtered_rows = existing_data[
+                        (existing_data["تاريخ الشراء"] == purchase_date_to_delete) &
+                        (existing_data["اسم الصنف"] == product_to_delete) &
+                        (existing_data["مورد الشركة"] == provider_to_delete)
+                    ]
 
-                    if st.button("حذف الصنف"):
-                        # Remove the selected row
-                        existing_data = existing_data[
-                            ~(
-                                (existing_data["اسم الصنف"] == product_to_delete) &
-                                (existing_data["مورد الشركة"] == provider_to_delete) &
-                                (existing_data["تاريخ الشراء"] == purchase_date_to_delete)
-                            )
-                        ]
+                    if not filtered_rows.empty:
+                        selected_row = filtered_rows.iloc[0]
 
-                        # Update worksheet
-                        conn.update(worksheet=branch, data=existing_data)
-                        st.success("تم حذف الصنف بنجاح!")
+                        # Preview the row
+                        st.markdown("**سيتم حذف الصف التالي:**")
+                        st.dataframe(pd.DataFrame([selected_row]))
+
+                        # Confirm checkbox
+                        confirm_delete = st.checkbox("أؤكد أنني أريد حذف هذا الصف")
+
+                        if confirm_delete and st.button("حذف الصنف"):
+                            existing_data = existing_data.drop(selected_row.name)
+                            conn.update(worksheet=branch, data=existing_data)
+                            st.success("✅ تم حذف الصنف بنجاح!")
+                    else:
+                        st.info("لم يتم العثور على صف يطابق البيانات المحددة.")
+
 if __name__ == "__main__":
     stock_app()
