@@ -246,7 +246,7 @@ def pivot_app():
         pivot_df.index = pivot_df.index.map(lambda x: lower_translation_dict.get(x.lower(), x))
 
         pivot_df.columns = pivot_df.columns.map(lambda x: branches_dict.get(x, x))
-
+        pivot_df = pivot_df[sorted(pivot_df.columns)]
         # Define the column groups
         alexandria_columns = ['سيدي بشر', 'الابراهيميه', 'وينجت']
         ready_veg_columns = ['المعادي لاسلكي', 'الدقي', 'زهراء المعادي', 'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2']
@@ -257,18 +257,22 @@ def pivot_app():
 
         # Create the Alexandria DataFrame (keeping 'Product' as the index)
         alexandria_df = pivot_df[alexandria_columns].copy()
+        alexandria_df = alexandria_df[sorted(alexandria_df.columns)]
         alexandria_df['Total'] = alexandria_df.sum(axis=1)
 
         # Create the Ready Veg DataFrame (keeping 'Product' as the index)
         ready_veg_df = pivot_df[ready_veg_columns].copy()
+        ready_veg_df = ready_veg_df[sorted(ready_veg_df.columns)]
         ready_veg_df['Total'] = ready_veg_df.sum(axis=1)
 
         # Create the Cairo DataFrame (keeping 'Product' as the index)
         cairo_df = pivot_df[cairo_columns].copy()
+        cairo_df = cairo_df[sorted(cairo_df.columns)]
         cairo_df['Total'] = cairo_df.sum(axis=1)
 
         # Filter each DataFrame to drop rows where all column values are 0
         alexandria_df = alexandria_df.loc[(alexandria_df != 0).any(axis=1)]
+        
         ready_veg_df = ready_veg_df.loc[(ready_veg_df != 0).any(axis=1)]
         cairo_df = cairo_df.loc[(cairo_df != 0).any(axis=1)]
         def get_category(product_name):
