@@ -114,6 +114,7 @@ def pivot_app():
             "Khodar.Com Pears African 500g": "كمثرى افريقي500 جرام",
             "Khodar.Com Capsicum Mix 500g": "فلفل الوان معبأ 500 جرام",
             "Khodar Italian Golden Apple 1kg": "تفاح اصفر ايطالى 1ك معبأ",
+            "Khodar.Com Italian Golden Apple 1Kg": "تفاح أصفر إيطالي"
             "Khodar.Com Orange For juice 2Kg": "برتقال عصير 2ك معبأ",
             "Khodar.Com Coconut Pc": "جوز هند قطعة",
             "Khodar.Com Guava 1Kg": "جوافة 1ك معبأ",
