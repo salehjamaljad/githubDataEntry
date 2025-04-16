@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
 import re
-
+from datetime import datetime
+import pytz
 def pivot_app():
+    egypt_tz = pytz.timezone('Africa/Cairo')
+    today_str = datetime.now(egypt_tz).strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
     st.title("Pivot 216 CSV File")
 
     # Upload the CSV file
@@ -188,35 +191,42 @@ def pivot_app():
             "Khodar.com Red Grape Fruit 1kg": "جريب فروت احمر 1كجم",
             "Khodar.com Local Peach 1kg": "خوخ محلي 1كجم",
             "Khodar.com Tangerine Christina 1kg": "يوسفي كريستينا 1كجم",
-            "Khodar.Com Sweet Melon 1kg": "شمام شهد 1ك معبأ"
+            "Khodar.Com Sweet Melon 1kg": "شمام شهد 1ك معبأ",
+            "khodar.com Watermelon Pc":	"بطيخ",
+            "khodar.Com Red Watermelon Seedless Pc": "بطيخ احمر بدون بذر",
+            "khodar.Com Yellow Watermelon Seedless Pc":	"بطيخ اصفر بدون بذر"
         }
-
-
-
-        # Define your custom product order
-        product_order = [
-            "افوكادو 500 جرام", "اناناس سكري فاخر معبأ", "برتقال عصير 2ك معبأ", "بروكلي 500 جرام",
-            "تفاح احمر مستورد 1ك معبأ", "تفاح اخضر امريكى 1ك معبأ", "تفاح اصفر ايطالى 1ك معبأ", "تفاح سكرى جالا 1ك معبأ",
-            "جوز هند قطعة", "زنجبيل 100 جرام معبأ", "طماطم شيرى معبأ 250 جرام", "عنب اسود مستورد 500 جرام معبأ",
-            "قصب مقشر350جم", "كنتالوب 2ك معبأ", "كيوي فاخر 250 جرام معبأ", "مشروم 200 جرام معبأ",
-            "موز بلدي فاخر 1ك معبأ", "موز مستورد 1ك", "يوسفي موركت 1ك", "ابوفروة 250جم",
-            "فول سوداني 500جم", "يوسفي بلدي 1كجم", "ذرة سكري 2 قطعه", 
-            "باذنجان عروس اسود معبأ 500 جرام", "باذنجان كوبى معبأ 1ك", "بصل ابيض معبأ 1ك", "بصل احمر معبأ 1ك",
-            "بطاطس معبأ 1ك", "بنجر احمر معبأ 500 جرام", "جزر  معبأ 500 جرام", "خيار فاخر معبأ 1ك", 
-            "طماطم فاخر معبأ 1ك", "فلفل اخضر حار معبأ 250 جرام", "فلفل الوان معبأ 500 جرام", "كوسة معبأ 500 جرام",
-            "ليمون بلدى فاخر معبأ 250 جرام", "بطاطا 1ك", "ثوم صيني ابيض 200جم", 
-            "فلفل اخضر كوبي 250جم", "فلفل حلو 250 جرام", "فجل احمر 500 جرام", 
-            "ليمون اضاليا 250 جرام", "سوتيه فريش 350 جرام", "بسلة مفصصة بالجزر فريش 350 جرام",
-            "بسلة مفصصة فريش 350 جرام", "خضار  مشكل فريش 350 جرام", "عبوة ثوم مفصص 100 جرام",
-            "قرع مكعبات صافى 350 جرام", "قلقاس مكعبات فريش 350 جرام", "كوسة مقورة فريش 350 جرام",
-            "محشى مشكل فريش 350 جرام", "بطاطس شرائح 350 جم", "بطاطس شيبسى فريش 350 جرام",
-            "بطاطس صوابع فريش 350 جرام", "جزر مقطع 350 جم", "فاصوليا مقطعة فريش 350 جرام",
-            "فلفل مقور محشي 350 جم", "كابوتشا مقطع 350 جم", "كوسة حلقات 350جم",
-            "ميكس كرنب سلطة مقطع فريش 350 جرام", "رمان مفرط 350 جم", "قرنبيط 500 جرام", 
-            "بصل اخضر معبأ", "بقدونس معبأ", "خس بلدي فاخر معبأ", "روزماري فريش معبأ", "ريحان اخضر معبأ",
-            "زعتر فريش معبأ", "شبت معبأ", "كابوتشى معبأ", "كرنب ابيض سلطة معبأ", "كرنب احمر سلطة معبأ",
-            "كزبرة معبأ", "كرفس فرنساوي 250 جرام"
-        ]
+        categories_dict = {
+            "فاكهة": [
+                "افوكادو 500 جرام", "اناناس سكري فاخر معبأ", "برتقال عصير 2ك معبأ", "بروكلي 500 جرام", 
+                "تفاح احمر مستورد 1ك معبأ", "تفاح اخضر امريكى 1ك معبأ", "تفاح اصفر ايطالى 1ك معبأ", 
+                "تفاح سكرى جالا 1ك معبأ", "جوز هند قطعة", "زنجبيل 100 جرام معبأ", "طماطم شيرى معبأ 250 جرام", 
+                "عنب اسود مستورد 500 جرام معبأ", "قصب مقشر350جم", "كنتالوب 2ك معبأ", "كيوي فاخر 250 جرام معبأ", 
+                "مشروم 200 جرام معبأ", "موز بلدي فاخر 1ك معبأ", "موز مستورد 1ك", "يوسفي موركت 1ك", 
+                "ابوفروة 250جم", "فول سوداني 500جم", "يوسفي بلدي 1كجم", "ذرة سكري 2 قطعه", "تفاح أصفر إيطالي"
+            ],
+            "خضار": [
+                "باذنجان عروس اسود معبأ 500 جرام", "باذنجان كوبى معبأ 1ك", "بصل ابيض معبأ 1ك", "بصل احمر معبأ 1ك", 
+                "بطاطس معبأ 1ك", "بنجر احمر معبأ 500 جرام", "جزر معبأ 500 جرام", "خيار فاخر معبأ 1ك", 
+                "طماطم فاخر معبأ 1ك", "فلفل اخضر حار معبأ 250 جرام", "فلفل الوان معبأ 500 جرام", "كوسة معبأ 500 جرام", 
+                "ليمون بلدى فاخر معبأ 250 جرام", "بطاطا 1ك", "ثوم صيني ابيض 200جم", "فلفل اخضر كوبي 250جم", 
+                "فلفل حلو 250 جرام", "فجل احمر 500 جرام", "ليمون اضاليا 250 جرام", "جزر  معبأ 500 جرام"
+            ],
+            "مجهز": [
+                "سوتيه فريش 350 جرام", "بسلة مفصصة بالجزر فريش 350 جرام", "بسلة مفصصة فريش 350 جرام", 
+                "خضار مشكل فريش 350 جرام", "عبوة ثوم مفصص 100 جرام", "قرع مكعبات صافى 350 جرام", 
+                "قلقاس مكعبات فريش 350 جرام", "كوسة مقورة فريش 350 جرام", "محشى مشكل فريش 350 جرام", 
+                "بطاطس شرائح 350 جم", "بطاطس شيبسى فريش 350 جرام", "بطاطس صوابع فريش 350 جرام", 
+                "جزر مقطع 350 جم", "فاصوليا مقطعة فريش 350 جرام", "فلفل مقور محشي 350 جم", 
+                "كابوتشا مقطع 350 جم", "كوسة حلقات 350جم", "ميكس كرنب سلطة مقطع فريش 350 جرام", 
+                "رمان مفرط 350 جم", "قرنبيط 500 جرام", "خضار  مشكل فريش 350 جرام"
+            ],
+            "ورقيات وأعشاب": [
+                "بصل اخضر معبأ", "بقدونس معبأ", "خس بلدي فاخر معبأ", "روزمارى فريش معبأ", "ريحان اخضر معبأ", 
+                "زعتر فريش معبأ", "شبت معبأ", "كابوتشى معبأ", "كرنب ابيض سلطة معبأ", "كرنب احمر سلطة معبأ", 
+                "كزبرة معبأ", "كرفس فرنساوي 250 جرام"
+            ]
+        }
 
         # Create the pivot table
         pivot_df = df.pivot_table(
@@ -226,6 +236,7 @@ def pivot_app():
             aggfunc='sum',
             fill_value=0
         )
+
         # Make a lowercase version of the translation dictionary keys
         lower_translation_dict = {k.lower(): v for k, v in translation_dict.items()}
 
@@ -233,11 +244,14 @@ def pivot_app():
         pivot_df.index = pivot_df.index.map(lambda x: lower_translation_dict.get(x.lower(), x))
 
         pivot_df.columns = pivot_df.columns.map(lambda x: branches_dict.get(x, x))
-        
+
         # Define the column groups
         alexandria_columns = ['سيدي بشر', 'الابراهيميه', 'وينجت']
         ready_veg_columns = ['المعادي لاسلكي', 'الدقي', 'زهراء المعادي', 'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2']
         cairo_columns = [col for col in pivot_df.columns if col not in alexandria_columns and col not in ready_veg_columns]
+
+        # Ensure all values are numeric for summing
+        pivot_df = pivot_df.apply(pd.to_numeric, errors='coerce')
 
         # Create the Alexandria DataFrame (keeping 'Product' as the index)
         alexandria_df = pivot_df[alexandria_columns].copy()
@@ -255,18 +269,75 @@ def pivot_app():
         alexandria_df = alexandria_df.loc[(alexandria_df != 0).any(axis=1)]
         ready_veg_df = ready_veg_df.loc[(ready_veg_df != 0).any(axis=1)]
         cairo_df = cairo_df.loc[(cairo_df != 0).any(axis=1)]
+        def get_category(product_name):
+            for category, products in categories_dict.items():
+                if product_name in products:
+                    return category
+            return 'غير محدد'  # Return 'غير محدد' (Undefined) if product not found in any category
 
+        # Create a new 'category' column in pivot_df
+        alexandria_df['category'] = alexandria_df.index.map(get_category)
+        ready_veg_df['category'] = ready_veg_df.index.map(get_category)
+        cairo_df['category'] = cairo_df.index.map(get_category)
+
+        category_order = {
+            "فاكهة": 1,
+            "خضار": 2,
+            "مجهز": 3,
+            "ورقيات وأعشاب": 4
+        }
+
+        # Sort each DataFrame
+        def sort_df(df):
+            # Add a temporary column for sorting based on the category order
+            df['category_order'] = df['category'].map(category_order)
+            
+            # Sort by 'category_order' and then alphabetically by 'Product' (index)
+            df_sorted = df.sort_values(by=['category_order', df.index.name], ascending=[True, True])
+            
+            # Drop the temporary 'category_order' column after sorting
+            df_sorted = df_sorted.drop(columns=['category_order'])
+            
+            return df_sorted
+
+        # Sort the DataFrames
+        alexandria_df = sort_df(alexandria_df)
+        ready_veg_df = sort_df(ready_veg_df)
+        cairo_df = sort_df(cairo_df)
 
         # Show pivoted data
         st.subheader("مجمع طلبات اسكندرية")
         st.dataframe(alexandria_df)
+        # Alexandria
+        alex_csv = alexandria_df.to_csv().encode('utf-8-sig')
+        st.download_button(
+            label="تحميل مجمع اسكندرية",
+            data=alex_csv,
+            file_name=f"مجمع_طلبات_اسكندرية_{today_str}.csv",
+            mime='text/csv'
+        )
 
         st.subheader("مجمع طلبات خضار الجاهز")
         st.dataframe(ready_veg_df)
+        # Ready Veg
+        ready_csv = ready_veg_df.to_csv().encode('utf-8-sig')
+        st.download_button(
+            label="تحميل مجمع الخضار الجاهز",
+            data=ready_csv,
+            file_name=f"مجمع_طلبات_الخضار_الجاهز_{today_str}.csv",
+            mime='text/csv'
+        )
 
         st.subheader("مجمع طلبات القاهرة")
         st.dataframe(cairo_df)
-
+        # Cairo
+        cairo_csv = cairo_df.to_csv().encode('utf-8-sig')
+        st.download_button(
+            label="تحميل مجمع القاهرة",
+            data=cairo_csv,
+            file_name=f"مجمع_طلبات_القاهرة_{today_str}.csv",
+            mime='text/csv'
+        )
     else:
         st.info("Please upload the 216.csv file.")
 
