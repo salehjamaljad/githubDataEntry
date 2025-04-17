@@ -3,6 +3,7 @@ import pandas as pd
 import re
 from datetime import datetime
 import pytz
+import io
 def pivot_app():
     egypt_tz = pytz.timezone('Africa/Cairo')
     today_str = datetime.now(egypt_tz).strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
@@ -311,38 +312,46 @@ def pivot_app():
         ready_veg_df = sort_df(ready_veg_df)
         cairo_df = sort_df(cairo_df)
 
-        # Show pivoted data
+        def to_excel_download_button(df, filename, sheet_name, label):
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df.to_excel(writer, index=True, sheet_name=sheet_name)
+            buffer.seek(0)
+            st.download_button(
+                label=label,
+                data=buffer,
+                file_name=filename,
+                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+
+        # Alexandria
         st.subheader("مجمع طلبات اسكندرية")
         st.dataframe(alexandria_df)
-        # Alexandria
-        alex_csv = alexandria_df.to_csv().encode('utf-8-sig')
-        st.download_button(
-            label="تحميل مجمع اسكندرية",
-            data=alex_csv,
-            file_name=f"مجمع_طلبات_اسكندرية_{today_str}.csv",
-            mime='text/csv'
+        to_excel_download_button(
+            alexandria_df,
+            f"مجمع_طلبات_اسكندرية_{today_str}.xlsx",
+            "Alexandria",
+            "تحميل مجمع اسكندرية"
         )
 
+        # Ready Veg
         st.subheader("مجمع طلبات خضار الجاهز")
         st.dataframe(ready_veg_df)
-        # Ready Veg
-        ready_csv = ready_veg_df.to_csv().encode('utf-8-sig')
-        st.download_button(
-            label="تحميل مجمع الخضار الجاهز",
-            data=ready_csv,
-            file_name=f"مجمع_طلبات_الخضار_الجاهز_{today_str}.csv",
-            mime='text/csv'
+        to_excel_download_button(
+            ready_veg_df,
+            f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx",
+            "ReadyVeg",
+            "تحميل مجمع الخضار الجاهز"
         )
 
+        # Cairo
         st.subheader("مجمع طلبات القاهرة")
         st.dataframe(cairo_df)
-        # Cairo
-        cairo_csv = cairo_df.to_csv().encode('utf-8-sig')
-        st.download_button(
-            label="تحميل مجمع القاهرة",
-            data=cairo_csv,
-            file_name=f"مجمع_طلبات_القاهرة_{today_str}.csv",
-            mime='text/csv'
+        to_excel_download_button(
+            cairo_df,
+            f"مجمع_طلبات_القاهرة_{today_str}.xlsx",
+            "Cairo",
+            "تحميل مجمع القاهرة"
         )
     else:
         st.info("Please upload the 216.csv file.")
