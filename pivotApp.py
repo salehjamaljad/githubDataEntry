@@ -255,16 +255,25 @@ def pivot_app():
 
         # Ensure all values are numeric for summing
         pivot_df = pivot_df.apply(pd.to_numeric, errors='coerce')
+        print(pivot_df.columns)
 
         # Create the Alexandria DataFrame (keeping 'Product' as the index)
         alexandria_df = pivot_df[alexandria_columns].copy()
         alexandria_df = alexandria_df[sorted(alexandria_df.columns)]
         alexandria_df['Total'] = alexandria_df.sum(axis=1)
 
-        # Create the Ready Veg DataFrame (keeping 'Product' as the index)
-        ready_veg_df = pivot_df[ready_veg_columns].copy()
-        ready_veg_df = ready_veg_df[sorted(ready_veg_df.columns)]
-        ready_veg_df['Total'] = ready_veg_df.sum(axis=1)
+        # Get the list of available columns from ready_veg_columns that exist in pivot_df
+        available_cols = [col for col in ready_veg_columns if col in pivot_df.columns]
+
+        if available_cols:
+            # Create the Ready Veg DataFrame with available columns
+            ready_veg_df = pivot_df[available_cols].copy()
+            ready_veg_df = ready_veg_df[sorted(ready_veg_df.columns)]
+            ready_veg_df['Total'] = ready_veg_df.sum(axis=1)
+        else:
+            # Create an empty DataFrame with the full expected columns
+            ready_veg_df = pd.DataFrame(columns=sorted(ready_veg_columns) + ['Total'])
+
 
         # Create the Cairo DataFrame (keeping 'Product' as the index)
         cairo_df = pivot_df[cairo_columns].copy()
@@ -309,7 +318,10 @@ def pivot_app():
 
         # Sort the DataFrames
         alexandria_df = sort_df(alexandria_df)
-        ready_veg_df = sort_df(ready_veg_df)
+        try:
+            ready_veg_df = sort_df(ready_veg_df)
+        except KeyError:
+            print("لا يوجد فروع للخضار الجاهز")
         cairo_df = sort_df(cairo_df)
 
         def to_excel_download_button(df, filename, sheet_name, label):
