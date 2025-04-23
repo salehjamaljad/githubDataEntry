@@ -11,7 +11,7 @@ import streamlit as st
 import gspread
 from docx import Document
 from email.message import EmailMessage
-
+import fitz
 def dashboardApp():
     multi_items_products = [{
             'talabat product': 'خضار.كوم ميكس كرنب سلطة مقطع فريش 350 جرام',
@@ -996,6 +996,137 @@ def dashboardApp():
     'نسبة مرتجع': 0.0,
     'منتج المواد': 'شمام شهد 1ك معبأ',
     'كمية المنتج في المواد': 1.15}]
+    translation_dict = {
+    'Khodar.Com Molokhia, 500g': 'ملوخية جاهزة500جم',
+    'Khodar.Com Green Beans Sliced, 350g': 'خضار.كوم فاصوليا مقطعة فريش 350 جرام',
+    'Khodar.com Iceberg Lettuce Shredded, 350g': 'خضار.كوم كابوتشا مقطع 350 جم',
+    'Khodar.com Mix Salad Cabbage Shredded, 350g': 'خضار.كوم ميكس كرنب سلطة مقطع فريش 350 جرام',
+    'Khodar.Com Chips Potatos 350 Gm': 'خضار.كوم بطاطس شيبسى فريش 350 جرام',
+    'Khodar.com Potatos Fries Ready to Cook, 350g': 'خضار.كوم بطاطس صوابع فريش 350 جرام',
+    'Khodar.com Pepper Ready for Stuffing, 350g': 'خضار.كوم فلفل مقور محشي 350 جم',
+    'Khodar.com Sliced Potatos, 350g': 'خضار.كوم بطاطس شرائح 350 جم',
+    'Khodar.Com Carrots Sliced, 350g': 'خضار.كوم جزر مقطع 350 جم',
+    'Khodar.com Zucchini Slices, 350g': 'خضار.كوم كوسة حلقات 350جم',
+    'Khodar.Com Sweet pepper 250 Gm': 'خضار.كوم فلفل حلو 250 جرام',
+    'Khodar.com Pomegranate, 1kg': 'خضار.كوم رمان 1كجم',
+    'Khodar.com Chestnut, 250g': 'خضار.كوم ابوفروة 250جم',
+    'Khodar.Com Clementine 1 Kg': 'خضار.كوم يوسفي كلمنتينا 1كجم',
+    'Khodar.Com Tangerine 1 Kg': 'خضار.كوم يوسفي بلدي 1كجم',
+    'Khodar.com Barhi Dates, 500g': 'خضار.كوم بلح برحي 500 جم',
+    'Khodar.com Imported Peach, 500g': 'خضار.كوم خوخ مستورد 500 جم',
+    'Khodar.com Imported Nectarine, 500g': 'خضار.كوم نكتارين مستورد 500 جم',
+    'Khodar.com Cuban Green Pepper, 250g': 'خضار.كوم فلفل اخضر كوبي 250جم',
+    'Khodar.com Chinese Garlic, 200g': 'خضار.كوم ثوم صيني ابيض 200جم',
+    'Khodar.com Peanuts, 500g': 'خضار.كوم فول سوداني 500جم',
+    'Khodar.com Peeled Pomegranate 350 Gm': 'رمان مفرط 350 جم',
+    'Khodar.Com Ready Okra 350 gm': 'بامية جاهزة 350 جم',
+    'Khodar.Com Molokhia Ready 350 gm': 'ملوخية جاهزة350جم',
+    'Khodar.Com Cherry 250 gm': 'كريز 250 جم',
+    'Khodar.Com Mango Fons 1Kg': 'مانجو فونس 1 ك',
+    'Khodar.Com Mango Fas Owais 500 gm': 'مانجو فص عويس 500 جم',
+    'Khodar.Com Mango Owais 1Kg': 'مانجو عويس 1 ك',
+    'Khodar.Com Mango Sadiqa 1Kg': 'مانجو صديقة 1ك',
+    'Khodar.Com Mango Zibdia 1Kg': 'مانجو زبدية 1ك',
+    'Khodar.Com Red Plum Local 1Kg': 'برقوق احمر محلي 1ك',
+    'Khodar.Com Banati Grapes 1Kg': 'عنب بناتى 1ك',
+    'Khodar.Com Early Sweet White Grapes 1Kg': 'عنب ايرلي سويت ابيض 1ك',
+    'Khodar.Com Red Flame Grapes 1Kg': 'عنب فليم احمر 1ك',
+    'Khodar.Com Peeled Cane 350 gm': 'قصب مقشر350جم',
+    'Khodar.Com Ready Taro 350 gm': 'قلقاس مكعبات فريش 350 جرام',
+    'Khodar.Com Mix Stuffed 350 gm': 'محشى مشكل فريش 350 جرام',
+    'Khodar.Com Ready Squash For Stuffing 350 gm': 'كوسة مقورة فريش 350 جرام',
+    'Khodar.Com Pears African 500 gm': 'كمثرى افريقي500 جرام',
+    'Khodar.Com Capsicum Mix 500 gm': 'فلفل الوان معبأ 500 جرام',
+    'Khodar Italian Golden Apple, 1kg': 'تفاح اصفر ايطالى 1ك معبأ',
+    'Khodar.Com Orange For juice 2 Kg': 'برتقال عصير 2ك معبأ',
+    'Khodar.Com Coconut Pc': 'جوز هند قطعة',
+    'Khodar.Com Tangerine 1 Kg': 'يوسفي موركت 1ك',
+    'Khodar.Com Guava 1 Kg': 'جوافة 1ك معبأ',
+    'Khodar.Com Sweet Potato 1 Kg': 'بطاطا 1ك',
+    'Khodar.Com Orange Navel 1 Kg': 'برتقال بسرة 1ك',
+    'Khodar.Com Potato For Fried 1 Kg': 'بطاطس معبأ 1ك',
+    'Khodar.Com Red Onion 1 Kg': 'بصل احمر معبأ 1ك',
+    'Khodar.Com Golden Onion 1 Kg': 'بصل ابيض معبأ 1ك',
+    'Khodar.Com Eggplant Romi 1 Kg': 'باذنجان كوبى معبأ 1ك',
+    'Khodar.Com Grapes Red Lebanese 500 gm': 'عنب كريمسون لبنانى 500 جرام معبأ',
+    'Khodar.Com Ready Pumpkin 350 gm': 'قرع مكعبات صافى 350 جرام',
+    'Khodar.Com Peeled Garlic Balady 125g': 'عبوة ثوم مفصص 100 جرام',
+    'Khodar.Com Ready Mix Vegetables 350 Gm': 'خضار مشكل فريش 350 جرام',
+    'Khodar.Com Ready Soutee Vegetables 350 gm': 'سوتيه فريش 350 جرام',
+    'Khodar.Com Ready Sweet Peas+Carrots 350 gm': 'بسلة مفصصة بالجزر فريش 350 جرام',
+    'Khodar.Com Ready Sweet Peas 350Gm': 'بسلة مفصصة فريش 350 جرام',
+    'Khodar.Com Black Grapes Lebanese 500gm': 'عنب اسود مستورد 500 جرام معبأ',
+    'Khodar.Com Imported Banana 1kg': 'موز مستورد 1ك',
+    'Khodar.Com Imported Kiwi, 250g': 'كيوي فاخر 250 جرام معبأ',
+    'Khodar.Com Italian Green Apple 1 Kg': 'تفاح اخضر امريكى 1ك معبأ',
+    'Khodar.Com Italian Royal Gala 1 Kg': 'تفاح سكرى جالا 1ك معبأ',
+    'Khodar.Com Italian Red Apple 1Kg': 'تفاح احمر مستورد 1ك معبأ',
+    'Khodar.Com Imported Red Plum 1kg': 'برقوق احمر مستورد 1ك',
+    'Khodar.Com Sweet Pineapple Pc': 'اناناس سكري فاخر معبأ',
+    'Khodar.Com Imported Avocado, 500g': 'افوكادو 500 جرام',
+    'Khodar.Com Imported White Grape 500gm': 'عنب ابيض مستورد 500 جرام',
+    'Khodar.Com Banana Balady 1kg': 'موز بلدي فاخر 1ك معبأ',
+    'Khodar.Com Cantalope 2kg': 'كنتالوب 2ك معبأ',
+    'Khodar.Com Coriander 100gm': 'كزبرة معبأ',
+    'Khodar.Com French Celery PC': 'كرفس فرنساوي 250 جرام',
+    'Khodar.Com DILL 100gm': 'شبت معبأ',
+    'Khodar.Com Thyme 50gm': 'زعتر فريش معبأ',
+    'Khodar.Com Basil 50gm': 'ريحان اخضر معبأ',
+    'Khodar.Com Rosemary 50gm': 'روزمارى فريش معبأ',
+    'Khodar.Com Watercress 100gm': 'جرجير معبأ',
+    'Khodar.Com Parsley 100gm': 'بقدونس معبأ',
+    'Khodar.Com Mushroom 200gm': 'مشروم 200 جرام معبأ',
+    'Khodar.Com Red Cabbage Pc': 'كرنب احمر سلطة معبأ',
+    'Khodar.Com White Cabbage Pc': 'كرنب ابيض سلطة معبأ',
+    'Khodar.Com Iceberg Lettuce pc': 'كابوتشى معبأ',
+    'Khodar.Com Ginger 100gm': 'زنجبيل 100 جرام معبأ',
+    'Khodar.Com Sweet Corn 2pc': 'ذرة سكري 2 قطعه',
+    'Khodar.Com Romaine Lettuce, 1 Piece': 'خس بلدي فاخر معبأ',
+    'Khodar.Com Green onion 125gm': 'بصل اخضر معبأ',
+    'Khodar.Com Lemon Balady 250gm': 'ليمون بلدى فاخر معبأ 250 جرام',
+    'Khodar.Com Lemon Adalia 250gm': 'ليمون اضاليا 250 جرام',
+    'Khodar.Com Zucchini 500gm': 'كوسة معبأ 500 جرام',
+    'Khodar.Com Leek 250gm': 'كرات 250 جرام',
+    'Khodar.Com Cauliflower 500gm': 'قرنبيط 500 جرام',
+    'Khodar.Com Pepper Hot Green 250gm': 'فلفل اخضر حار معبأ 250 جرام',
+    'Khodar.Com Red Radish 500gm': 'فجل احمر 500 جرام',
+    'Khodar.Com Tomato 1kg': 'طماطم فاخر معبأ 1ك',
+    'Khodar.Com Cherry Tomato 250gm': 'طماطم شيرى معبأ 250 جرام',
+    'Khodar.Com Cucumber 1kg': 'خيار فاخر معبأ 1ك',
+    'Khodar.Com Carrots 500gm': 'جزر معبأ 500 جرام',
+    'Khodar.Com Beet Root 500gm': 'بنجر احمر معبأ 500 جرام',
+    'Khodar.Com Broccoli 500gm': 'بروكلي 500 جرام',
+    'Khodar.Com Black Eggplant 500gm': 'باذنجان عروس اسود معبأ 500 جرام',
+    'Khodar.Com Black Grapes 1Kg': 'عنب اسود 1ك',
+    'Khodar.Com White Eggplant 500gm': 'باذنجان عروس ابيض معبأ 500 جرام',
+    'Khodar.Com Pepper hot Red 250gm': 'فلفل حار احمر 250 جرام',
+    'Khodar.Com Strawberry 250gm': 'فراوله 250 جرام',
+    'Khodar.Com Pears Lebanese 500 Gm': 'كمثري لبناني 500 جرام',
+    'Khodar.Com Peeled Haranksh 250 gm': 'حرنكش مقشر 250 جرام',
+    'Khodar.Com Watermelon Pc': 'بطيخ',
+    'Khodar.Com Red Watermelon Seedless Pc': 'بطيخ احمر بدون بذر',
+    'Khodar.Com Yellow Watermelon Seedless Pc': 'بطيخ اصفر بدون بذر',
+    'Khodar.Com Sugar peach 1Kg': 'خوخ سكرى',
+    'Khodar.com Fresh Peas, 500g': 'خضار.كوم بسلة 500 جم',
+    'Khodar.com Fresh Green Beans, 500g': 'خضار.كوم فاصوليا خضراء 500جم',
+    'Khodar.com White Grape Fruit, 1kg': 'خضار.كوم جريب فروت ابيض 1كجم',
+    'Khodar.com Red Grape Fruit, 1kg': 'خضار.كوم جريب فروت احمر 1كجم',
+    'Khodar.com Local Peach, 1kg': 'خضار.كوم خوخ محلي 1كجم',
+    'Khodar.com Tangerine Christina, 1kg': 'خضار.كوم يوسفي كريستينا 1كجم',
+    'Khodar.Com Sweet Melon, 1kg': 'شمام شهد 1ك معبأ',
+    'Khodar.com Chips Potatos, 350g': 'خضار.كوم بطاطس شيبسى فريش 350 جرام',
+    'Khodar.Com Chips Potatos, 350g': 'خضار.كوم بطاطس شيبسى فريش 350 جرام',
+    'Khodar.Com Royal Gala Apple - Itally, 1kg': 'تفاح سكرى جالا 1ك معبأ',
+    'Khodar.com Sweet Pepper, 250g': 'خضار.كوم فلفل حلو 250 جرام',
+    'Khodar.com Tangerine, 1kg':'يوسفي موركت 1ك',
+    'Khodar.com Yellow Apple - Italy, 1kg': "تفاح أصفر إيطالي",
+    'Khodar.Com Sweet Peas 350Gm': 'بسلة مفصصة فريش 350 جرام',
+    'Khodar.Com Radish 500gm': 'فجل احمر 500 جرام',
+    'Khodar.Com Sweet Peas+Carrots 350 gm': 'بسلة مفصصة بالجزر فريش 350 جرام',
+    'Khodar.Com Squash For Stuffing 350 gm': 'كوسة مقورة فريش 350 جرام',
+    'Khodar.Com Taro 350 gm': 'قلقاس مكعبات فريش 350 جرام',
+    'Khodar.Com Lettuce, 1 Piece': 'خس بلدي فاخر معبأ'
+}
 
 
 
@@ -1009,57 +1140,72 @@ def dashboardApp():
 
     def extract_description_and_price(file_path):
         """Extract Arabic description and price from a Word document."""
-        doc = Document(file_path)
-        extracted_data = []
         
-        file_name = os.path.basename(file_path)
-        price_column_index = 3 if "بريد فاست" in file_name else 2  # 4th column for بريد فاست, 3rd otherwise
+        doc = fitz.open(file_path)
+        extracted_data= []
+        text = "\n".join([page.get_text() for page in doc])
 
-        # Extract date from filename using regex
-        date_match = re.search(r"\d{2}-\d{2}-\d{4}", file_name)
-        invoice_date = pd.NaT
-        if date_match:
-            invoice_date = pd.to_datetime(date_match.group(), format="%d-%m-%Y")
+        dates = re.findall(r"\b\d{2}/\d{2}/\d{4}\b", text)
+        order_date = dates[0]
+        normalized = text.replace("\n", " ")
+        pattern = re.compile(r"(Khodar\.com.*?)(?=\s\d+\s\d+\.\d{2})", re.IGNORECASE)
+        products = pattern.findall(normalized)
 
-        for table in doc.tables:  
-            for row in table.rows:  
-                cells = [cell.text.strip() for cell in row.cells]
-                if len(cells) > price_column_index:  # Ensure enough columns exist
-                    arabic_description = cells[1]  
-                    price = cells[price_column_index]  
-                    extracted_data.append({
-                        "Product": arabic_description,
-                        "Price": price,
-                        "File": file_name,
-                        "Invoice Date": invoice_date
-                    })
+        if products:
+            products[0] = "Khodar.Com" + re.split(r'khodar\.com', products[0], flags=re.IGNORECASE)[-1]
+
+        pattern = r"\d+\s(\d+\.\d{2})\s"  # Match digits followed by space, a float, and space
+
+        # Find all prices using the adjusted regex
+        prices = re.findall(pattern, text)
+        prices = prices[::3]
+
+        for i in range(len(products)):
+            if len(products) == len(prices): 
+                product = products[i] 
+                price = prices[i]
+                extracted_data.append({
+                    "Product": product,
+                    "Price": price,
+                    "Invoice Date": order_date
+                })
+
 
         return pd.DataFrame(extracted_data)
 
     global df_invoices
     def process_zip(zip_file):
-        """Extract files from ZIP and process .docx invoices."""
+        """Extract files from ZIP and process .pdf invoices."""
         global df_invoices  # Declare the global variable
 
         extracted_folder = tempfile.mkdtemp()
         with zipfile.ZipFile(zip_file, 'r') as z:
             z.extractall(extracted_folder)
-        
-        docx_files = [os.path.join(extracted_folder, f) for f in os.listdir(extracted_folder) if f.endswith(".docx") and "طلبات" in f]
-        if not docx_files:
+
+        pdf_files = [os.path.join(extracted_folder, f) for f in os.listdir(extracted_folder) if f.endswith(".pdf") and f.startswith("PO")]
+        if not pdf_files:
             df_invoices = pd.DataFrame()  # Assign an empty DataFrame to the global variable
-            return df_invoices, "No matching .docx files found."
-        
-        df_invoices = pd.concat([extract_description_and_price(file) for file in docx_files], ignore_index=True)
+            return df_invoices, "No matching .pdf files found."
+
+        df_invoices = pd.concat([extract_description_and_price(file) for file in pdf_files], ignore_index=True)
         df_invoices.replace(to_replace={'': None}, inplace=True)
         df_invoices = df_invoices[df_invoices["Product"] != "Arabic Description"].reset_index(drop=True)
         df_invoices.dropna(inplace=True)
         df_invoices = df_invoices[pd.to_numeric(df_invoices["Price"], errors="coerce").notna()]
-        
+        def extract_product_name(text):
+            match = re.search(r'(?:\d{11,}[\s-]*)+(.+)', text)
+            return "Khodar.Com " + match.group(1).strip() if match else text
+        def translate_product(product_name):
+            return translation_dict.get(product_name, product_name)  # If no translation, return original name
+
+        # Apply cleaning
+        df_invoices['Product'] = df_invoices['Product'].apply(extract_product_name)
+        # Apply translation
+        df_invoices['Product'] = df_invoices['Product'].apply(translate_product)
         return df_invoices, None
 
     st.title("Invoice Data Extractor")
-    uploaded_file = st.file_uploader("Upload a ZIP file containing .docx invoices", type="zip")
+    uploaded_file = st.file_uploader("Upload a ZIP file containing Purchase Orders", type="zip")
 
     if uploaded_file:
         with st.spinner("Processing..."):
@@ -1150,7 +1296,6 @@ def dashboardApp():
 
         # Reset index
         df_merged.reset_index(drop=True, inplace=True)
-        df_merged.drop("File", axis=1, inplace=True)
         df_merged = df_merged.rename(columns={'Product': 'اسم الصنف طلبات', 'Price': 'اخر سعر بيع لطلبات', 'Invoice Date' : 'تاريخ فاتورة طلبات'})
         df_merged.dropna(subset=['اسم الصنف'], inplace=True)
         # Function to calculate تكلفة الوحدة for single-item products
