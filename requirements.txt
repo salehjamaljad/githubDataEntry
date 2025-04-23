@@ -10,5 +10,4 @@ openpyxl
 python-docx
 pytz
 datetime
-fitz
 pymupdf
