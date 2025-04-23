@@ -72,7 +72,8 @@ def pivot_app():
             "EG_Tagamoa 5_Mahkama_DS_43": "التجمع محكمه",
             "EG_Tagamoa Golden Sq_DS_45": "التجمع جولدن سكوير",
             "EG_Tanta_DS_24": "طنطا",
-            "EG_Zakazik_DS_33": "الزقازيق"
+            "EG_Zakazik_DS_33": "الزقازيق",
+            "EG_Heliopolis_Sheraton_DS_52": "هيليوبليس شيراتون"
         }
 
 
