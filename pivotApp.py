@@ -232,71 +232,62 @@ def pivot_app():
             ]
         }
 
-        # Create the pivot table
+        # Create pivot table
         pivot_df = df.pivot_table(
             index='Product',
             columns='Store_name',
             values='Effective quantity',
             aggfunc='sum',
             fill_value=0
-        )
+        ).reset_index()
 
-        # Make a lowercase version of the translation dictionary keys
+        # Add Product code next to Product
+        product_code_df = df[['Product', 'Product code']].drop_duplicates()
+        pivot_df = pivot_df.merge(product_code_df, on='Product', how='left')
+
+        # Translate product names
         lower_translation_dict = {k.lower(): v for k, v in translation_dict.items()}
+        pivot_df['Product'] = pivot_df['Product'].map(lambda x: lower_translation_dict.get(str(x).lower(), x))
 
-        # Map using lowercase comparison
-        pivot_df.index = pivot_df.index.map(lambda x: lower_translation_dict.get(x.lower(), x))
+        # Map store names to Arabic
+        pivot_df.columns = [branches_dict.get(col, col) if col not in ['Product', 'Product code'] else col for col in pivot_df.columns]
 
-        pivot_df.columns = pivot_df.columns.map(lambda x: branches_dict.get(x, x))
-        pivot_df = pivot_df[sorted(pivot_df.columns)]
-        # Define the column groups
+        # Sort columns alphabetically, keeping Product and Product code at the front
+        fixed_cols = ['Product', 'Product code']
+        sorted_cols = fixed_cols + sorted([col for col in pivot_df.columns if col not in fixed_cols])
+        pivot_df = pivot_df[sorted_cols]
+
+        # Define branches
         alexandria_columns = ['سيدي بشر', 'الابراهيميه', 'وينجت']
         ready_veg_columns = ['المعادي لاسلكي', 'الدقي', 'زهراء المعادي', 'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2']
-        cairo_columns = [col for col in pivot_df.columns if col not in alexandria_columns and col not in ready_veg_columns]
+        cairo_columns = [col for col in pivot_df.columns if col not in fixed_cols + alexandria_columns + ready_veg_columns]
 
-        # Ensure all values are numeric for summing
-        pivot_df = pivot_df.apply(pd.to_numeric, errors='coerce')
-        print(pivot_df.columns)
+        # Convert to numeric where possible
+        pivot_df.iloc[:, 2:] = pivot_df.iloc[:, 2:].apply(pd.to_numeric, errors='coerce')
 
-        # Create the Alexandria DataFrame (keeping 'Product' as the index)
-        alexandria_df = pivot_df[alexandria_columns].copy()
-        alexandria_df = alexandria_df[sorted(alexandria_df.columns)]
-        alexandria_df['Total'] = alexandria_df.sum(axis=1)
+        # Helper to create regional DataFrames
+        def create_region_df(df, region_cols):
+            region_cols = [col for col in region_cols if col in df.columns]
+            region_df = df[fixed_cols + region_cols].copy()
+            region_df['Total'] = region_df[region_cols].sum(axis=1)
+            region_df = region_df.loc[(region_df[region_cols] != 0).any(axis=1)]
+            return region_df
 
-        # Get the list of available columns from ready_veg_columns that exist in pivot_df
-        available_cols = [col for col in ready_veg_columns if col in pivot_df.columns]
+        alexandria_df = create_region_df(pivot_df, alexandria_columns)
+        ready_veg_df = create_region_df(pivot_df, ready_veg_columns)
+        cairo_df = create_region_df(pivot_df, cairo_columns)
 
-        if available_cols:
-            # Create the Ready Veg DataFrame with available columns
-            ready_veg_df = pivot_df[available_cols].copy()
-            ready_veg_df = ready_veg_df[sorted(ready_veg_df.columns)]
-            ready_veg_df['Total'] = ready_veg_df.sum(axis=1)
-        else:
-            # Create an empty DataFrame with the full expected columns
-            ready_veg_df = pd.DataFrame(columns=sorted(ready_veg_columns) + ['Total'])
-
-
-        # Create the Cairo DataFrame (keeping 'Product' as the index)
-        cairo_df = pivot_df[cairo_columns].copy()
-        cairo_df = cairo_df[sorted(cairo_df.columns)]
-        cairo_df['Total'] = cairo_df.sum(axis=1)
-
-        # Filter each DataFrame to drop rows where all column values are 0
-        alexandria_df = alexandria_df.loc[(alexandria_df != 0).any(axis=1)]
-        
-        ready_veg_df = ready_veg_df.loc[(ready_veg_df != 0).any(axis=1)]
-        cairo_df = cairo_df.loc[(cairo_df != 0).any(axis=1)]
+        # Category assignment
         def get_category(product_name):
             for category, products in categories_dict.items():
                 if product_name in products:
                     return category
-            return 'غير محدد'  # Return 'غير محدد' (Undefined) if product not found in any category
+            return 'غير محدد'
 
-        # Create a new 'category' column in pivot_df
-        alexandria_df['category'] = alexandria_df.index.map(get_category)
-        ready_veg_df['category'] = ready_veg_df.index.map(get_category)
-        cairo_df['category'] = cairo_df.index.map(get_category)
+        for df in [alexandria_df, ready_veg_df, cairo_df]:
+            df['category'] = df['Product'].map(get_category)
 
+        # Sorting function
         category_order = {
             "فاكهة": 1,
             "خضار": 2,
@@ -304,31 +295,19 @@ def pivot_app():
             "ورقيات وأعشاب": 4
         }
 
-        # Sort each DataFrame
         def sort_df(df):
-            # Add a temporary column for sorting based on the category order
             df['category_order'] = df['category'].map(category_order)
-            
-            # Sort by 'category_order' and then alphabetically by 'Product' (index)
-            df_sorted = df.sort_values(by=['category_order', df.index.name], ascending=[True, True])
-            
-            # Drop the temporary 'category_order' column after sorting
-            df_sorted = df_sorted.drop(columns=['category_order'])
-            
-            return df_sorted
+            df_sorted = df.sort_values(by=['category_order', 'Product'], ascending=[True, True])
+            return df_sorted.drop(columns='category_order')
 
-        # Sort the DataFrames
         alexandria_df = sort_df(alexandria_df)
-        try:
-            ready_veg_df = sort_df(ready_veg_df)
-        except KeyError:
-            print("لا يوجد فروع للخضار الجاهز")
+        ready_veg_df = sort_df(ready_veg_df) if not ready_veg_df.empty else pd.DataFrame(columns=ready_veg_columns + ['Total', 'category'])
         cairo_df = sort_df(cairo_df)
 
         def to_excel_download_button(df, filename, sheet_name, label):
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                df.to_excel(writer, index=True, sheet_name=sheet_name)
+                df.to_excel(writer, index=False, sheet_name=sheet_name)
             buffer.seek(0)
             st.download_button(
                 label=label,
@@ -337,37 +316,19 @@ def pivot_app():
                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             )
 
-        # Alexandria
         st.subheader("مجمع طلبات اسكندرية")
         st.dataframe(alexandria_df)
-        to_excel_download_button(
-            alexandria_df,
-            f"مجمع_طلبات_اسكندرية_{today_str}.xlsx",
-            "Alexandria",
-            "تحميل مجمع اسكندرية"
-        )
+        to_excel_download_button(alexandria_df, f"مجمع_طلبات_اسكندرية_{today_str}.xlsx", "Alexandria", "تحميل مجمع اسكندرية")
 
-        # Ready Veg
         st.subheader("مجمع طلبات خضار الجاهز")
         st.dataframe(ready_veg_df)
-        to_excel_download_button(
-            ready_veg_df,
-            f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx",
-            "ReadyVeg",
-            "تحميل مجمع الخضار الجاهز"
-        )
+        to_excel_download_button(ready_veg_df, f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx", "ReadyVeg", "تحميل مجمع الخضار الجاهز")
 
-        # Cairo
         st.subheader("مجمع طلبات القاهرة")
         st.dataframe(cairo_df)
-        to_excel_download_button(
-            cairo_df,
-            f"مجمع_طلبات_القاهرة_{today_str}.xlsx",
-            "Cairo",
-            "تحميل مجمع القاهرة"
-        )
+        to_excel_download_button(cairo_df, f"مجمع_طلبات_القاهرة_{today_str}.xlsx", "Cairo", "تحميل مجمع القاهرة")
+
     else:
         st.info("Please upload the 216.csv file.")
-
 if __name__ == "__main__":
     pivot_app()
