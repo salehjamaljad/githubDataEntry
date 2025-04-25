@@ -77,128 +77,125 @@ def pivot_app():
         }
 
 
-        translation_dict = {
-            "Khodar.Com Molokhia 500g": "ملوخية جاهزة500جم",
-            "Khodar.Com Green Beans Sliced 350g": "فاصوليا مقطعة فريش 350 جرام",
-            "Khodar.com Iceberg Lettuce Shredded 350g": "كابوتشا مقطع 350 جم",
-            "Khodar.com Mix Salad Cabbage Shredded 350g": "ميكس كرنب سلطة مقطع فريش 350 جرام",
-            "Khodar.Com Chips Potatos 350g": "بطاطس شيبسى فريش 350 جرام",
-            "Khodar.com Potatos Fries Ready to Cook 350g": "بطاطس صوابع فريش 350 جرام",
-            "Khodar.com Pepper Ready for Stuffing 350g": "فلفل مقور محشي 350 جم",
-            "Khodar.com Sliced Potatos 350g": "بطاطس شرائح 350 جم",
-            "Khodar.Com Carrots Sliced 350g": "جزر مقطع 350 جم",
-            "Khodar.com Zucchini Slices 350g": "كوسة حلقات 350جم",
-            "Khodar.Com Sweet pepper 250g": "فلفل حلو 250 جرام",
-            "Khodar.com Pomegranate 1kg": "رمان 1كجم",
-            "Khodar.com Chestnut 250g": "ابوفروة 250جم",
-            "Khodar.Com Clementine 1Kg": "يوسفي كلمنتينا 1كجم",
-            "Khodar.Com Tangerine 1Kg": "يوسفي بلدي 1كجم",
-            "Khodar.com Barhi Dates 500g": "بلح برحي  500 جم",
-            "Khodar.com Imported Peach 500g": "خوخ مستورد 500 جم",
-            "Khodar.com Imported Nectarine 500g": "نكتارين مستورد 500 جم",
-            "Khodar.com Cuban Green Pepper 250g": "فلفل اخضر كوبي 250جم",
-            "Khodar.com Chinese Garlic 200g": "ثوم صيني ابيض 200جم",
-            "Khodar.com Peanuts 500g": "فول سوداني 500جم",
-            "Khodar.com Peeled Pomegranate 350g": "رمان مفرط 350 جم",
-            "Khodar.Com Ready Okra 350g": "بامية جاهزة 350 جم",
-            "Khodar.Com Molokhia Ready 350g": "ملوخية جاهزة350جم",
-            "Khodar.Com Cherry 250g": "كريز 250 جم",
-            "Khodar.Com Mango Fons 1Kg": "مانجو فونس 1 ك",
-            "Khodar.Com Mango Fas Owais 500g": "مانجو فص عويس 500 جم",
-            "Khodar.Com Mango Owais 1Kg": "مانجو عويس 1 ك",
-            "Khodar.Com Mango Sadiqa 1Kg": "مانجو صديقة 1ك",
-            "Khodar.Com Mango Zibdia 1Kg": "مانجو زبدية 1ك",
-            "Khodar.Com Red Plum Local 1Kg": "برقوق احمر محلي 1ك",
-            "Khodar.Com Banati Grapes 1Kg": "عنب بناتى 1ك",
-            "Khodar.Com Early Sweet White Grapes 1Kg": "عنب ايرلي سويت ابيض 1ك",
-            "Khodar.Com Red Flame Grapes 1Kg": "عنب فليم احمر 1ك",
-            "Khodar.Com Peeled Cane 350g": "قصب مقشر350جم",
-            "Khodar.Com Ready Taro 350g": "قلقاس مكعبات فريش 350 جرام",
-            "Khodar.Com Mix Stuffed 350g": "محشى مشكل فريش 350 جرام",
-            "Khodar.Com Ready Squash For Stuffing 350g": "كوسة مقورة فريش 350 جرام",
-            "Khodar.Com Pears African 500g": "كمثرى افريقي500 جرام",
-            "Khodar.Com Capsicum Mix 500g": "فلفل الوان معبأ 500 جرام",
-            "Khodar Italian Golden Apple 1kg": "تفاح اصفر ايطالى 1ك معبأ",
-            "Khodar.Com Italian Golden Apple 1Kg": "تفاح أصفر إيطالي",
-            "Khodar.Com Orange For juice 2Kg": "برتقال عصير 2ك معبأ",
-            "Khodar.Com Coconut Pc": "جوز هند قطعة",
-            "Khodar.Com Guava 1Kg": "جوافة 1ك معبأ",
-            "Khodar.Com Sweet Potato 1Kg": "بطاطا 1ك",
-            "Khodar.Com Orange Navel 1Kg": "برتقال بسرة 1ك",
-            "Khodar.Com Potato For Fried 1Kg": "بطاطس معبأ 1ك",
-            "Khodar.Com Red Onion 1Kg": "بصل احمر معبأ 1ك",
-            "Khodar.Com Golden Onion 1Kg": "بصل ابيض معبأ 1ك",
-            "Khodar.Com Eggplant Romi 1Kg": "باذنجان كوبى معبأ 1ك",
-            "Khodar.Com Grapes Red Lebanese 500g": "عنب كريمسون لبنانى 500 جرام معبأ",
-            "Khodar.Com Ready Pumpkin 350g": "قرع مكعبات صافى 350 جرام",
-            "Khodar.Com Peeled Garlic Balady 125g": "عبوة ثوم مفصص 100 جرام",
-            "Khodar.Com Ready Mix Vegetables 350g": "خضار  مشكل فريش 350 جرام",
-            "Khodar.Com Ready Soutee Vegetables 350g": "سوتيه فريش 350 جرام",
-            "Khodar.Com Ready Sweet Peas+Carrots 350g": "بسلة مفصصة بالجزر فريش 350 جرام",
-            "Khodar.Com Ready Sweet Peas 350g": "بسلة مفصصة فريش 350 جرام",
-            "Khodar.Com Black Grapes Lebanese 500g": "عنب اسود مستورد 500 جرام معبأ",
-            "Khodar.Com Imported Banana 1kg": "موز مستورد 1ك",
-            "Khodar.Com Imported Kiwi 250g": "كيوي فاخر 250 جرام معبأ",
-            "Khodar.Com Italian Green Apple 1Kg": "تفاح اخضر امريكى 1ك معبأ",
-            "Khodar.Com Italian Royal Gala 1Kg": "تفاح سكرى جالا 1ك معبأ",
-            "Khodar.Com Italian Red Apple 1Kg": "تفاح احمر مستورد 1ك معبأ",
-            "Khodar.Com Imported Red Plum 1kg": "برقوق احمر مستورد 1ك",
-            "Khodar.Com Sweet Pineapple Pc": "اناناس سكري فاخر معبأ",
-            "Khodar.Com Imported Avocado 500g": "افوكادو 500 جرام",
-            "Khodar.Com Imported White Grape  500g": "عنب ابيض مستورد 500 جرام",
-            "Khodar.Com Banana Balady 1kg": "موز بلدي فاخر 1ك معبأ",
-            "Khodar.Com Cantalope 2kg": "كنتالوب 2ك معبأ",
-            "Khodar.Com Coriander 100g": "كزبرة معبأ",
-            "Khodar.Com French Celery PC": "كرفس فرنساوي 250 جرام",
-            "Khodar.Com DILL 100g": "شبت معبأ",
-            "Khodar.Com Thyme 50g": "زعتر فريش معبأ",
-            "Khodar.Com Basil 50g": "ريحان اخضر معبأ",
-            "Khodar.Com Rosemary 50g": "روزمارى فريش معبأ",
-            "Khodar.Com Watercress 100g": "جرجير معبأ",
-            "Khodar.Com Parsley 100g": "بقدونس معبأ",
-            "Khodar.Com Mushroom 200g": "مشروم 200 جرام معبأ",
-            "Khodar.Com Red Cabbage Pc": "كرنب احمر سلطة معبأ",
-            "Khodar.Com White Cabbage Pc": "كرنب ابيض سلطة معبأ",
-            "Khodar.Com Iceberg Lettuce pc": "كابوتشى معبأ",
-            "Khodar.Com Ginger 100g": "زنجبيل 100 جرام معبأ",
-            "Khodar.Com Sweet Corn 2pc": "ذرة سكري 2 قطعه",
-            "Khodar.Com Romaine Lettuce 1 Piece": "خس بلدي فاخر معبأ",
-            "Khodar.Com Romaine Lettuce pc": "خس بلدي فاخر معبأ",
-            "Khodar.Com Green onion 125g": "بصل اخضر معبأ",
-            "Khodar.Com Lemon Balady 250g": "ليمون بلدى فاخر معبأ 250 جرام",
-            "Khodar.Com Lemon Adalia 250g": "ليمون اضاليا 250 جرام",
-            "Khodar.Com Zucchini 500g": "كوسة معبأ 500 جرام",
-            "Khodar.Com Leek 250g": "كرات 250 جرام",
-            "Khodar.Com Cauliflower 500g": "قرنبيط 500 جرام",
-            "Khodar.Com Pepper Hot Green 250g": "فلفل اخضر حار معبأ 250 جرام",
-            "Khodar.Com Red Radish 500g": "فجل احمر 500 جرام",
-            "Khodar.Com Tomato 1kg": "طماطم فاخر معبأ 1ك",
-            "Khodar.Com Cherry Tomato 250g": "طماطم شيرى معبأ 250 جرام",
-            "Khodar.Com Cucumber 1kg": "خيار فاخر معبأ 1ك",
-            "Khodar.Com Carrots 500g": "جزر  معبأ 500 جرام",
-            "Khodar.Com Beet Root 500g": "بنجر احمر معبأ 500 جرام",
-            "Khodar.Com Broccoli 500g": "بروكلي 500 جرام",
-            "Khodar.Com Black Eggplant 500g": "باذنجان عروس اسود معبأ 500 جرام",
-            "Khodar.Com Black Grapes 1Kg": "عنب اسود 1ك",
-            "Khodar.Com White Eggplant 500g": "باذنجان عروس ابيض معبأ 500 جرام",
-            "Khodar.Com Pepper hot Red 250g": "فلفل حار احمر 250 جرام",
-            "Khodar.Com Strawberry 250g": "فراوله 250 جرام",
-            "Khodar.Com Pears Lebanese 500g": "كمثري لبناني 500 جرام",
-            "Khodar.Com Peeled Haranksh 250g": "حرنكش مقشر 250 جرام",
-            "khodar.com Watermelon Pc": "بطيخ",
-            "khodar.Com Sugar peach 1Kg": "خوخ سكرى",
-            "Khodar.com Fresh Peas 500g": "بسلة 500 جم",
-            "Khodar.com Fresh Green Beans 500g": "فاصوليا خضراء 500جم",
-            "Khodar.com White Grape Fruit 1kg": "جريب فروت ابيض 1كجم",
-            "Khodar.com Red Grape Fruit 1kg": "جريب فروت احمر 1كجم",
-            "Khodar.com Local Peach 1kg": "خوخ محلي 1كجم",
-            "Khodar.com Tangerine Christina 1kg": "يوسفي كريستينا 1كجم",
-            "Khodar.Com Sweet Melon 1kg": "شمام شهد 1ك معبأ",
-            "khodar.com Watermelon Pc":	"بطيخ",
-            "khodar.com Watermelon 1Pc 6-8Kg": "بطيخ",
-            "khodar.Com Red Watermelon Seedless Pc": "بطيخ احمر بدون بذر",
-            "khodar.Com Yellow Watermelon Seedless Pc":	"بطيخ اصفر بدون بذر"
-        }
+        translation_dict = {926242: 'ملوخية جاهزة500جم',
+        924881: 'فاصوليا مقطعة فريش 350 جرام',
+        924880: 'كابوتشا مقطع 350 جم',
+        924879: 'ميكس كرنب سلطة مقطع فريش 350 جرام',
+        924878: 'بطاطس شيبسى فريش 350 جرام',
+        924877: 'بطاطس صوابع فريش 350 جرام',
+        924876: 'فلفل مقور محشي 350 جم',
+        924875: 'بطاطس شرائح 350 جم',
+        924874: 'جزر مقطع 350 جم',
+        924873: 'كوسة حلقات 350جم',
+        924871: 'فلفل حلو 250 جرام',
+        924868: 'رمان 1كجم',
+        924867: 'ابوفروة 250جم',
+        924864: 'يوسفي كلمنتينا 1كجم',
+        924862: 'يوسفي بلدي 1كجم',
+        924861: 'بلح برحي 500 جم',
+        924860: 'خوخ مستورد 500 جم',
+        924859: 'نكتارين مستورد 500 جم',
+        924858: 'فلفل اخضر كوبي 250جم',
+        924857: 'ثوم صيني ابيض 200جم',
+        924856: 'فول سوداني 500جم',
+        913437: 'رمان مفرط 350 جم',
+        912855: 'بامية جاهزة 350 جم',
+        912854: 'ملوخية جاهزة350جم',
+        912852: 'كريز 250 جم',
+        912850: 'مانجو فونس 1 ك',
+        912849: 'مانجو فص عويس 500 جم',
+        912848: 'مانجو عويس 1 ك',
+        912847: 'مانجو صديقة 1ك',
+        912846: 'مانجو زبدية 1ك',
+        912845: 'برقوق احمر محلي 1ك',
+        912844: 'عنب بناتى 1ك',
+        912843: 'عنب ايرلي سويت ابيض 1ك',
+        912842: 'عنب فليم احمر 1ك',
+        912841: 'قصب مقشر350جم',
+        912840: 'قلقاس مكعبات فريش 350 جرام',
+        912839: 'محشى مشكل فريش 350 جرام',
+        912838: 'كوسة مقورة فريش 350 جرام',
+        912837: 'كمثرى افريقي500 جرام',
+        912836: 'فلفل الوان معبأ 500 جرام',
+        911211: 'تفاح اصفر ايطالى 1ك معبأ',
+        911045: 'برتقال عصير 2ك معبأ',
+        911044: 'جوز هند قطعة',
+        911043: 'يوسفي موركت 1ك',
+        911042: 'جوافة 1ك معبأ',
+        911041: 'بطاطا 1ك',
+        911040: 'برتقال بسرة 1ك',
+        911039: 'بطاطس معبأ 1ك',
+        911038: 'بصل احمر معبأ 1ك',
+        911037: 'بصل ابيض معبأ 1ك',
+        911036: 'باذنجان كوبى معبأ 1ك',
+        910161: 'عنب كريمسون لبنانى 500 جرام معبأ',
+        910159: 'قرع مكعبات صافى 350 جرام',
+        910158: 'عبوة ثوم مفصص 100 جرام',
+        910157: 'خضار مشكل فريش 350 جرام',
+        910156: 'سوتيه فريش 350 جرام',
+        910155: 'بسلة مفصصة بالجزر فريش 350 جرام',
+        910154: 'بسلة مفصصة فريش 350 جرام',
+        910153: 'عنب اسود مستورد 500 جرام معبأ',
+        910152: 'موز مستورد 1ك',
+        910151: 'كيوي فاخر 250 جرام معبأ',
+        910150: 'تفاح اخضر امريكى 1ك معبأ',
+        910149: 'تفاح سكرى جالا 1ك معبأ',
+        910148: 'تفاح احمر مستورد 1ك معبأ',
+        910147: 'برقوق احمر مستورد 1ك',
+        910146: 'اناناس سكري فاخر معبأ',
+        910144: 'افوكادو 500 جرام',
+        910142: 'عنب ابيض مستورد 500 جرام',
+        910141: 'موز بلدي فاخر 1ك معبأ',
+        910140: 'كنتالوب 2ك معبأ',
+        910139: 'كزبرة معبأ',
+        910138: 'كرفس فرنساوي 250 جرام',
+        910137: 'شبت معبأ',
+        910136: 'زعتر فريش معبأ',
+        910135: 'ريحان اخضر معبأ',
+        910134: 'روزمارى فريش معبأ',
+        910133: 'جرجير معبأ',
+        910132: 'بقدونس معبأ',
+        910131: 'مشروم 200 جرام معبأ',
+        910130: 'كرنب احمر سلطة معبأ',
+        910129: 'كرنب ابيض سلطة معبأ',
+        910128: 'كابوتشى معبأ',
+        910127: 'زنجبيل 100 جرام معبأ',
+        910126: 'ذرة سكري 2 قطعه',
+        910125: 'خس بلدي فاخر معبأ',
+        910124: 'بصل اخضر معبأ',
+        910123: 'ليمون بلدى فاخر معبأ 250 جرام',
+        910122: 'ليمون اضاليا 250 جرام',
+        910121: 'كوسة معبأ 500 جرام',
+        910120: 'كرات 250 جرام',
+        910119: 'قرنبيط 500 جرام',
+        910117: 'فلفل اخضر حار معبأ 250 جرام',
+        910116: 'فجل احمر 500 جرام',
+        910115: 'طماطم فاخر معبأ 1ك',
+        910114: 'طماطم شيرى معبأ 250 جرام',
+        910113: 'خيار فاخر معبأ 1ك',
+        910112: 'جزر معبأ 500 جرام',
+        910111: 'بنجر احمر معبأ 500 جرام',
+        910110: 'بروكلي 500 جرام',
+        910108: 'باذنجان عروس اسود معبأ 500 جرام',
+        912853: 'عنب اسود 1ك',
+        910109: 'باذنجان عروس ابيض معبأ 500 جرام',
+        910118: 'فلفل حار احمر 250 جرام',
+        910143: 'فراوله 250 جرام',
+        910145: 'كمثري لبناني 500 جرام',
+        910160: 'حرنكش مقشر 250 جرام',
+        911046: 'برقوق اصفر مستورد 1ك',
+        911047: 'بلح عراقي 1ك',
+        911212: 'بطيخ',
+        911213: 'بطيخ احمر بدون بذر',
+        911214: 'بطيخ اصفر بدون بذر',
+        911215: 'خوخ سكرى',
+        924865: 'بسلة 500 جم',
+        924866: 'فاصوليا خضراء 500جم',
+        924869: 'جريب فروت ابيض 1كجم',
+        924870: 'جريب فروت احمر 1كجم',
+        924872: 'خوخ محلي 1كجم',
+        924863: 'يوسفي كريستينا 1كجم',
+        912835: 'شمام شهد 1ك معبأ'}
         categories_dict = {
             "فاكهة": [
                 "افوكادو 500 جرام", "اناناس سكري فاخر معبأ", "برتقال عصير 2ك معبأ", "بروكلي 500 جرام", 
@@ -231,63 +228,72 @@ def pivot_app():
                 "كزبرة معبأ", "كرفس فرنساوي 250 جرام"
             ]
         }
-
-        # Create pivot table
+        df['Product code'] = df['Product code'].astype(int)
+        # Create the pivot table
         pivot_df = df.pivot_table(
-            index='Product',
+            index='Product code',
             columns='Store_name',
             values='Effective quantity',
             aggfunc='sum',
             fill_value=0
-        ).reset_index()
+        )
 
-        # Add Product code next to Product
-        product_code_df = df[['Product', 'Product code']].drop_duplicates()
-        pivot_df = pivot_df.merge(product_code_df, on='Product', how='left')
 
-        # Translate product names
-        lower_translation_dict = {k.lower(): v for k, v in translation_dict.items()}
-        pivot_df['Product'] = pivot_df['Product'].map(lambda x: lower_translation_dict.get(str(x).lower(), x))
+        # Add a 'Product name' column using the translation_dict
+        pivot_df.insert(0, 'Product name', pivot_df.index.map(lambda x: translation_dict.get(x, x)))
 
-        # Map store names to Arabic
-        pivot_df.columns = [branches_dict.get(col, col) if col not in ['Product', 'Product code'] else col for col in pivot_df.columns]
+        pivot_df.columns = pivot_df.columns.map(lambda x: branches_dict.get(x, x))
+        pivot_df = pivot_df[sorted(pivot_df.columns)]
+        
+        # Define the column groups
+        alexandria_columns = ['Product name', 'سيدي بشر', 'الابراهيميه', 'وينجت']
+        ready_veg_columns = ['Product name', 'المعادي لاسلكي', 'الدقي', 'زهراء المعادي', 'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2']
+        cairo_columns = [col for col in pivot_df.columns if col not in alexandria_columns and col not in ready_veg_columns or col == 'Product name']
 
-        # Sort columns alphabetically, keeping Product and Product code at the front
-        fixed_cols = ['Product', 'Product code']
-        sorted_cols = fixed_cols + sorted([col for col in pivot_df.columns if col not in fixed_cols])
-        pivot_df = pivot_df[sorted_cols]
 
-        # Define branches
-        alexandria_columns = ['سيدي بشر', 'الابراهيميه', 'وينجت']
-        ready_veg_columns = ['المعادي لاسلكي', 'الدقي', 'زهراء المعادي', 'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2']
-        cairo_columns = [col for col in pivot_df.columns if col not in fixed_cols + alexandria_columns + ready_veg_columns]
+        # Ensure all values are numeric for summing
+        pivot_df.loc[:, pivot_df.columns != 'Product name'] = pivot_df.loc[:, pivot_df.columns != 'Product name'].apply(pd.to_numeric, errors='coerce')
+        print(pivot_df.columns)
 
-        # Convert to numeric where possible
-        pivot_df.iloc[:, 2:] = pivot_df.iloc[:, 2:].apply(pd.to_numeric, errors='coerce')
+        # Create the Alexandria DataFrame (keeping 'Product' as the index)
+        alexandria_df = pivot_df[alexandria_columns].copy()
+        alexandria_df = alexandria_df[sorted(alexandria_df.columns)]
+        alexandria_df['Total'] = alexandria_df.loc[:, alexandria_df.columns != 'Product name'].sum(axis=1)
 
-        # Helper to create regional DataFrames
-        def create_region_df(df, region_cols):
-            region_cols = [col for col in region_cols if col in df.columns]
-            region_df = df[fixed_cols + region_cols].copy()
-            region_df['Total'] = region_df[region_cols].sum(axis=1)
-            region_df = region_df.loc[(region_df[region_cols] != 0).any(axis=1)]
-            return region_df
+        # Get the list of available columns from ready_veg_columns that exist in pivot_df
+        available_cols = [col for col in ready_veg_columns if col in pivot_df.columns]
 
-        alexandria_df = create_region_df(pivot_df, alexandria_columns)
-        ready_veg_df = create_region_df(pivot_df, ready_veg_columns)
-        cairo_df = create_region_df(pivot_df, cairo_columns)
+        if available_cols:
+            # Create the Ready Veg DataFrame with available columns
+            ready_veg_df = pivot_df[available_cols].copy()
+            ready_veg_df = ready_veg_df[sorted(ready_veg_df.columns)]
+            ready_veg_df['Total'] = ready_veg_df.loc[:, ready_veg_df.columns != 'Product name'].sum(axis=1)
+        else:
+            # Create an empty DataFrame with the full expected columns
+            ready_veg_df = pd.DataFrame(columns=sorted(ready_veg_columns) + ['Total'])
 
-        # Category assignment
+
+        # Create the Cairo DataFrame (keeping 'Product' as the index)
+        cairo_df = pivot_df[cairo_columns].copy()
+        cairo_df = cairo_df[sorted(cairo_df.columns)]
+        cairo_df['Total'] = cairo_df.loc[:, cairo_df.columns != 'Product name'].sum(axis=1)
+
+        # Filter each DataFrame to drop rows where the 'Total' column is 0
+        alexandria_df = alexandria_df[alexandria_df['Total'] != 0]
+        ready_veg_df = ready_veg_df[ready_veg_df['Total'] != 0]
+        cairo_df = cairo_df[cairo_df['Total'] != 0]
+
         def get_category(product_name):
             for category, products in categories_dict.items():
                 if product_name in products:
                     return category
-            return 'غير محدد'
+            return 'غير محدد'  # Return 'غير محدد' (Undefined) if product not found in any category
 
-        for df in [alexandria_df, ready_veg_df, cairo_df]:
-            df['category'] = df['Product'].map(get_category)
+        # Create a new 'category' column in pivot_df
+        alexandria_df['category'] = alexandria_df['Product name'].map(get_category)
+        ready_veg_df['category'] = ready_veg_df['Product name'].map(get_category)
+        cairo_df['category'] = cairo_df['Product name'].map(get_category)
 
-        # Sorting function
         category_order = {
             "فاكهة": 1,
             "خضار": 2,
@@ -295,19 +301,31 @@ def pivot_app():
             "ورقيات وأعشاب": 4
         }
 
+        # Sort each DataFrame
         def sort_df(df):
+            # Add a temporary column for sorting based on the category order
             df['category_order'] = df['category'].map(category_order)
-            df_sorted = df.sort_values(by=['category_order', 'Product'], ascending=[True, True])
-            return df_sorted.drop(columns='category_order')
+            
+            # Sort by 'category_order' and then alphabetically by 'Product' (index)
+            df_sorted = df.sort_values(by=['category_order', df['Product name'].name], ascending=[True, True])
+            
+            # Drop the temporary 'category_order' column after sorting
+            df_sorted = df_sorted.drop(columns=['category_order'])
+            
+            return df_sorted
 
+        # Sort the DataFrames
         alexandria_df = sort_df(alexandria_df)
-        ready_veg_df = sort_df(ready_veg_df) if not ready_veg_df.empty else pd.DataFrame(columns=ready_veg_columns + ['Total', 'category'])
+        try:
+            ready_veg_df = sort_df(ready_veg_df)
+        except KeyError:
+            print("لا يوجد فروع للخضار الجاهز")
         cairo_df = sort_df(cairo_df)
 
         def to_excel_download_button(df, filename, sheet_name, label):
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False, sheet_name=sheet_name)
+                df.to_excel(writer, index=True, sheet_name=sheet_name)
             buffer.seek(0)
             st.download_button(
                 label=label,
@@ -316,18 +334,35 @@ def pivot_app():
                 mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             )
 
+        # Alexandria
         st.subheader("مجمع طلبات اسكندرية")
         st.dataframe(alexandria_df)
-        to_excel_download_button(alexandria_df, f"مجمع_طلبات_اسكندرية_{today_str}.xlsx", "Alexandria", "تحميل مجمع اسكندرية")
+        to_excel_download_button(
+            alexandria_df,
+            f"مجمع_طلبات_اسكندرية_{today_str}.xlsx",
+            "Alexandria",
+            "تحميل مجمع اسكندرية"
+        )
 
+        # Ready Veg
         st.subheader("مجمع طلبات خضار الجاهز")
         st.dataframe(ready_veg_df)
-        to_excel_download_button(ready_veg_df, f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx", "ReadyVeg", "تحميل مجمع الخضار الجاهز")
+        to_excel_download_button(
+            ready_veg_df,
+            f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx",
+            "ReadyVeg",
+            "تحميل مجمع الخضار الجاهز"
+        )
 
+        # Cairo
         st.subheader("مجمع طلبات القاهرة")
         st.dataframe(cairo_df)
-        to_excel_download_button(cairo_df, f"مجمع_طلبات_القاهرة_{today_str}.xlsx", "Cairo", "تحميل مجمع القاهرة")
-
+        to_excel_download_button(
+            cairo_df,
+            f"مجمع_طلبات_القاهرة_{today_str}.xlsx",
+            "Cairo",
+            "تحميل مجمع القاهرة"
+        )
     else:
         st.info("Please upload the 216.csv file.")
 if __name__ == "__main__":
