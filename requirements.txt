@@ -12,3 +12,4 @@ pytz
 datetime
 pymupdf
 fuzzywuzzy
+pdfplumber
