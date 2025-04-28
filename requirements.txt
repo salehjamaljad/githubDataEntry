@@ -1,6 +1,5 @@
 streamlit
 st-gsheets-connection
-streamlit
 gspread
 gspread-dataframe
 google-api-python-client
