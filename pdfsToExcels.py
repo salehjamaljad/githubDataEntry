@@ -10,7 +10,6 @@ from datetime import datetime
 import pytz
 import io
 import xlsxwriter
-
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -311,6 +310,31 @@ def pdfToExcel():
         df = df.reset_index(drop=True)
         df = df[df['Qty'] != '']
         df = df[df['SKU'] != 'SKU']
+        # Drop the specified columns
+        df.drop(columns=[
+            'Disc._Amt.', 
+            'Amt._Excl._VAT', 
+            'VAT_%', 
+            'VAT_Amt.', 
+            'Supplier SKU',
+            'No.',
+            'Product'
+        ], inplace=True)
+
+        # Rename the specified columns
+        df.rename(columns={
+            'Unit_Cost': 'PP',
+            'Amt._Incl._VAT': 'Total'
+        }, inplace=True)
+
+        # Convert data types
+        df['PP'] = df['PP'].astype(float)
+        df['Total'] = df['Total'].astype(float)
+        df['Qty'] = df['Qty'].astype(int)
+        df['Barcode'] = df['Barcode'].astype(int)
+        df['SKU'] = df['SKU'].astype(int)
+        df["Item Name Ar"] = df["SKU"].map(translation_dict)
+        df = df[['SKU', 'Barcode', 'Item Name Ar', 'PP', 'Qty', 'Total']]
         df = df.reset_index(drop=True)
         return df
 
