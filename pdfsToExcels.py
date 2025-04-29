@@ -9,6 +9,8 @@ from fuzzywuzzy import process
 from datetime import datetime
 import pytz
 import io
+import xlsxwriter
+
 def pdfToExcel():
     # Define your standard column names
     columns = [
