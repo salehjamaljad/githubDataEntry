@@ -12,3 +12,4 @@ datetime
 pymupdf
 fuzzywuzzy
 pdfplumber
+XlsxWriter
