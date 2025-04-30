@@ -9,7 +9,11 @@ from fuzzywuzzy import process
 from datetime import datetime
 import pytz
 import io
-import xlsxwriter
+from docx import Document
+from docx.shared import Inches
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+import os
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -339,7 +343,7 @@ def pdfToExcel():
         return df
 
     st.title("PDF to Excel Converter (Bulk)")
-
+    selected_date = st.date_input('enter the delivery date')
     uploaded_zip = st.file_uploader("Upload a ZIP file containing PDFs", type=["zip"])
 
     if uploaded_zip is not None:
@@ -358,11 +362,13 @@ def pdfToExcel():
             os.makedirs(output_dir, exist_ok=True)
 
             # Process each PDF
+            pos_with_filenames = {}
             for filename in os.listdir(temp_dir):
                 if filename.endswith(".pdf"):
                     file_path = os.path.join(temp_dir, filename)
                     df = process_pdf(file_path)
-
+                    po = filename.split("-")[0].strip()
+                    pos_with_filenames[filename] = po
                     # Extract branch name for renaming
                     extracted_data = extract_eg_codes(file_path)
                     branch_name = None
@@ -371,12 +377,13 @@ def pdfToExcel():
 
                     # Use the branch name for renaming to Arabic only
                     if branch_name:
-                        output_filename = f"{branch_name}.xlsx"
+                        output_filename = f"{branch_name}_{po}.xlsx"
                     else:
                         output_filename = f"{os.path.splitext(filename)[0]}.xlsx"
 
                     output_path = os.path.join(output_dir, output_filename)
-                    df.to_excel(output_path, index=False)
+                    df["po"] = po
+                    df.to_excel(output_path, index=False, columns=[col for col in df.columns if col != "po"])
 
             
             all_dfs = []
@@ -387,8 +394,13 @@ def pdfToExcel():
                     df = pd.read_excel(excel_path)
 
                     # Get branch name from file name (remove .xlsx)
-                    branch_name = os.path.splitext(excel_file)[0]
+                    base = os.path.splitext(excel_file)[0]
+                    parts = base.rsplit("_", 1)
+                    if len(parts) == 2:
+                        branch_name, po = parts
                     df["branch"] = branch_name
+                    df["po"] = po
+                    
 
                     all_dfs.append(df)
 
@@ -492,42 +504,118 @@ def pdfToExcel():
                 egypt_tz = pytz.timezone('Africa/Cairo')
                 today_str = datetime.now(egypt_tz).strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
 
-                # Zip all the Excel files
+                
+                
+                
+                
+                def set_paragraph_rtl(paragraph):
+                    """Set paragraph direction to RTL."""
+                    p = paragraph._p
+                    pPr = p.get_or_add_pPr()
+                    bidi = OxmlElement('w:bidi')
+                    bidi.set(qn('w:val'), '1')
+                    pPr.append(bidi)
+
+                def create_docx_from_dfs(all_dfs, selected_date):
+                    docx_files = {}
+
+                    for df in all_dfs:
+                        if 'branch' not in df.columns:
+                            continue
+
+                        branch_name = df['branch'].iloc[0]
+                        customer_name = f"دليفيري هيرو ديمارت ايجيبت فرع {branch_name}"
+                        po = df["po"].iloc[0] if "po" in df.columns else ""
+
+                        df_to_save = df.copy()
+                        if 'Qty' in df_to_save.columns:
+                            df_to_save['Qty'] = ''
+                        if 'Total' in df_to_save.columns:
+                            df_to_save['Total'] = ''
+                        df_to_save.drop(columns=['branch', 'po'], inplace=True, errors='ignore')
+
+                        doc = Document()
+                        p1 = doc.add_paragraph(f"تحريرا في/ {selected_date}")
+                        set_paragraph_rtl(p1)
+
+                        p2 = doc.add_paragraph(f"اسم العميل/ {customer_name}")
+                        set_paragraph_rtl(p2)
+
+                        p3 = doc.add_paragraph(f"{po}/ امر شراء رقم ")
+                        set_paragraph_rtl(p3)
+
+
+                        table = doc.add_table(rows=1, cols=len(df_to_save.columns))
+                        table.style = 'Table Grid'
+
+                        hdr_cells = table.rows[0].cells
+                        for j, column in enumerate(df_to_save.columns):
+                            hdr_cells[j].text = str(column)
+
+                        for _, row in df_to_save.iterrows():
+                            row_cells = table.add_row().cells
+                            for j, value in enumerate(row):
+                                row_cells[j].text = str(value)
+
+                        docx_buffer = BytesIO()
+                        doc.save(docx_buffer)
+                        docx_buffer.seek(0)
+
+                        filename = f"{branch_name}.docx"
+                        docx_files[filename] = docx_buffer.getvalue()
+
+                    return docx_files
+
+
+                docx_files = create_docx_from_dfs(all_dfs, selected_date)
+                
+                
+                
+                
+                
+                
+                
+                
+                # Add Cairo DF
+                cairo_buffer = BytesIO()
+                with pd.ExcelWriter(cairo_buffer, engine='xlsxwriter') as writer:
+                    cairo_df.to_excel(writer, index=False)
+                
+                # Add Ready Veg DF
+                ready_buffer = BytesIO()
+                with pd.ExcelWriter(ready_buffer, engine='xlsxwriter') as writer:
+                    ready_veg_df.to_excel(writer, index=False)
+                
+                # Add Alexandria DF
+                alex_buffer = BytesIO()
+                with pd.ExcelWriter(alex_buffer, engine='xlsxwriter') as writer:
+                    alexandria_df.to_excel(writer, index=False)
+                
+                # Create ZIP
                 output_zip_buffer = BytesIO()
                 with zipfile.ZipFile(output_zip_buffer, "w") as zipf:
-                    # Add files from the output directory
+                    # Add Excel files from output_dir
                     for excel_file in os.listdir(output_dir):
                         excel_path = os.path.join(output_dir, excel_file)
                         zipf.write(excel_path, arcname=excel_file)
 
-                    # Add Alexandria DF
-                    alex_buffer = BytesIO()
-                    with pd.ExcelWriter(alex_buffer, engine='xlsxwriter') as writer:
-                        alexandria_df.to_excel(writer, index=False)
+                    # Add in-memory Excel dataframes
                     zipf.writestr(f"مجمع_طلبات_اسكندرية_{today_str}.xlsx", alex_buffer.getvalue())
-
-                    # Add Ready Veg DF
-                    ready_buffer = BytesIO()
-                    with pd.ExcelWriter(ready_buffer, engine='xlsxwriter') as writer:
-                        ready_veg_df.to_excel(writer, index=False)
                     zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx", ready_buffer.getvalue())
-
-                    # Add Cairo DF
-                    cairo_buffer = BytesIO()
-                    with pd.ExcelWriter(cairo_buffer, engine='xlsxwriter') as writer:
-                        cairo_df.to_excel(writer, index=False)
                     zipf.writestr(f"مجمع_طلبات_القاهرة_{today_str}.xlsx", cairo_buffer.getvalue())
 
-                # Reset buffer to start
+                    # Add generated DOCX files
+                    for filename, file_data in docx_files.items():
+                        zipf.writestr(filename, file_data)
+
                 output_zip_buffer.seek(0)
 
                 st.success("Processing complete!")
-
-                # Offer download
+                
                 st.download_button(
-                    label="Download All Excels as ZIP",
+                    label="Download All Files as ZIP",
                     data=output_zip_buffer.getvalue(),
-                    file_name="excels.zip",
+                    file_name="documents.zip",
                     mime="application/zip"
                 )
 if __name__ == "__main__":
