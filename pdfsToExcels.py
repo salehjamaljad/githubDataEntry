@@ -13,6 +13,7 @@ from docx import Document
 from docx.shared import Inches
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from docx.shared import Inches, Pt
 import os
 def pdfToExcel():
     # Define your standard column names
@@ -344,6 +345,7 @@ def pdfToExcel():
 
     st.title("PDF to Excel Converter (Bulk)")
     selected_date = st.date_input('enter the delivery date')
+    base_invoice_num = st.number_input("Enter base invoice number", min_value=0, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing PDFs", type=["zip"])
 
     if uploaded_zip is not None:
@@ -516,14 +518,27 @@ def pdfToExcel():
                     bidi.set(qn('w:val'), '1')
                     pPr.append(bidi)
 
-                def create_docx_from_dfs(all_dfs, selected_date):
+                def create_docx_from_dfs(all_dfs, selected_date, base_invoice_num, branches_dict):
                     docx_files = {}
 
+                    # Map from branch name to its df
+                    branch_dfs = {}
                     for df in all_dfs:
                         if 'branch' not in df.columns:
                             continue
+                        branch_key = df['branch'].iloc[0]
+                        branch_name = branches_dict.get(branch_key, branch_key)
+                        branch_dfs[branch_name] = df
 
-                        branch_name = df['branch'].iloc[0]
+                    # Priority branches first, then alphabetical
+                    priority = ["الابراهيميه", "سيدي بشر", "وينجت"]
+                    other_branches = sorted([b for b in branch_dfs if b not in priority])
+                    sorted_branch_names = [b for b in priority if b in branch_dfs] + other_branches
+
+                    # Create documents with padded invoice numbers
+                    invoice_num = base_invoice_num
+                    for branch_name in sorted_branch_names:
+                        df = branch_dfs[branch_name]
                         customer_name = f"دليفيري هيرو ديمارت ايجيبت فرع {branch_name}"
                         po = df["po"].iloc[0] if "po" in df.columns else ""
 
@@ -534,7 +549,52 @@ def pdfToExcel():
                             df_to_save['Total'] = ''
                         df_to_save.drop(columns=['branch', 'po'], inplace=True, errors='ignore')
 
+                        padded_invoice = str(invoice_num).zfill(8)
+                        invoice_num += 1
+
                         doc = Document()
+
+                        # Create a 2-row, 2-column table
+                        image_table = doc.add_table(rows=2, cols=2)
+                        image_table.autofit = False  # Disable autofit to control widths
+
+                        # Adjust column widths: 3/4 for the left side (Pictures 3 & 4), 1/4 for the right side (Pictures 1 & 2)
+                        total_width = Inches(6)  # Total width of the table, you can adjust as needed
+                        left_col_width = total_width * 0.75  # 3/4 of the width
+                        right_col_width = total_width * 0.25  # 1/4 of the width
+
+                        # Apply column widths
+                        for row in image_table.rows:
+                            row.cells[0].width = left_col_width
+                            row.cells[1].width = right_col_width
+
+                        # Set picture paths
+                        pictures = {
+                            (0, 1): "Picture1.png",  # top-right (narrow)
+                            (1, 1): "Picture2.png",  # bottom-right (narrow)
+                            (0, 0): "Picture3.png",  # top-left (wide)
+                            (1, 0): "Picture4.png"   # bottom-left (wide)
+                        }
+
+                        # Add pictures and minimize vertical spacing
+                        for (row_idx, col_idx), img_path in pictures.items():
+                            try:
+                                cell = image_table.cell(row_idx, col_idx)
+                                paragraph = cell.paragraphs[0]
+                                run = paragraph.add_run()
+                                # Control image size to reduce overall table height
+                                image_width = right_col_width if col_idx == 1 else left_col_width
+                                run.add_picture(img_path, width=image_width, height=Inches(1.25))
+
+                                # Remove space above/below image
+                                paragraph.paragraph_format.space_before = Pt(0)
+                                paragraph.paragraph_format.space_after = Pt(0)
+                            except Exception as e:
+                                print(f"Error adding image {img_path}: {e}")
+
+                        p0 = doc.add_paragraph(f"فاتورة مبيعات رقم/ {padded_invoice}")
+                        set_paragraph_rtl(p0)
+
                         p1 = doc.add_paragraph(f"تحريرا في/ {selected_date}")
                         set_paragraph_rtl(p1)
 
@@ -543,7 +603,6 @@ def pdfToExcel():
 
                         p3 = doc.add_paragraph(f"{po}/ امر شراء رقم ")
                         set_paragraph_rtl(p3)
-
 
                         table = doc.add_table(rows=1, cols=len(df_to_save.columns))
                         table.style = 'Table Grid'
@@ -567,7 +626,7 @@ def pdfToExcel():
                     return docx_files
 
 
-                docx_files = create_docx_from_dfs(all_dfs, selected_date)
+                docx_files = create_docx_from_dfs(all_dfs, selected_date, base_invoice_num, branches_dict)
                 
                 
                 
