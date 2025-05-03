@@ -519,7 +519,7 @@ def pdfToExcel():
                     # Drop helper column
                     df = df.drop(columns=["category_order"])
 
-                    # Reorder columns: insert total quantity and total after PP
+                    # Reorder columns: insert total quantity before PP, and total after PP
                     cols = df.columns.tolist()
                     try:
                         pp_index = cols.index("PP")
@@ -530,13 +530,14 @@ def pdfToExcel():
                     cols.remove("total quantity")
                     cols.remove("total")
 
-                    # Insert them after PP
-                    cols = cols[:pp_index+1] + ["total quantity", "total"] + cols[pp_index+1:]
+                    # Insert total quantity before PP, and total after PP
+                    cols = cols[:pp_index] + ["total quantity", "PP", "total"] + cols[pp_index+1:]
 
                     # Reorder the DataFrame
                     df = df[cols]
 
                     return df
+
 
                 # Apply to each DataFrame
                 alexandria_df = add_total_and_sort(alexandria_df)
