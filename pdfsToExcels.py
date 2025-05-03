@@ -345,7 +345,7 @@ def pdfToExcel():
         df = df.reset_index(drop=True)
         return df
 
-    st.title("PDF to Excel Converter (Bulk)")
+    st.title("Purhcase Orders To Invoices")
     selected_date = st.date_input('enter the delivery date')
     base_invoice_num = st.number_input("Enter base invoice number", min_value=0, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing PDFs", type=["zip"])
@@ -636,7 +636,7 @@ def pdfToExcel():
                         doc.save(docx_buffer)
                         docx_buffer.seek(0)
 
-                        filename = f"{branch_name}_{selected_date}.docx"
+                        filename = f"{branch_name}_{selected_date}_{invoice_num}.docx"
                         docx_files[filename] = docx_buffer.getvalue()
 
                     return docx_files
