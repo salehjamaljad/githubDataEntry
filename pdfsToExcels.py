@@ -404,15 +404,16 @@ def pdfToExcel():
             for excel_file in os.listdir(output_dir):
                 if excel_file.endswith(".xlsx"):
                     excel_path = os.path.join(output_dir, excel_file)
-                    df = pd.read_excel(excel_path)
+                    df = pd.read_excel(excel_path, usecols=range(6))  # Read only first 6 columns
 
-                    # Get branch name from file name (remove .xlsx)
+                    # Get branch name and PO from file name
                     base = os.path.splitext(excel_file)[0]
-                    parts = base.rsplit("_", 1)
-                    if len(parts) == 2:
-                        branch_name, po = parts
-                    df["branch"] = branch_name.split('_')[0]
-                    df["po"] = po
+                    parts = base.split("_")
+                    if len(parts) >= 2:
+                        branch_name = parts[0]
+                        po = parts[1]
+                        df["branch"] = branch_name
+                        df["po"] = po
                     
 
                     all_dfs.append(df)
