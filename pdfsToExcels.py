@@ -438,7 +438,7 @@ def pdfToExcel():
 
                 # Pivot the dataframe
                 pivot_df = combined_df.pivot_table(
-                    index=["SKU", "Product", "category"],
+                    index=["Barcode", "SKU", "Product", "category", "PP"],
                     columns="branch",
                     values="Qty",
                     aggfunc="sum",
@@ -449,13 +449,13 @@ def pdfToExcel():
                 pivot_df = pivot_df.rename(columns={"Product": "Product name"})
                 pivot_df[sorted(pivot_df.columns)]
                 # Define column groups
-                alexandria_columns = ['Product name', 'SKU', 'category', 'سيدي بشر', 'الابراهيميه', 'وينجت']
-                ready_veg_columns = ['Product name', 'SKU', 'category', 'المعادي لاسلكي', 'الدقي', 'زهراء المعادي',
+                alexandria_columns = ["Barcode",'Product name', 'SKU', 'category', "PP",'سيدي بشر', 'الابراهيميه', 'وينجت']
+                ready_veg_columns = ["Barcode",'Product name', 'SKU', 'category',  "PP", 'المعادي لاسلكي', 'الدقي', 'زهراء المعادي',
                                     'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2']
                 
                 
                 # Always-include base columns
-                base_columns = ['Product name', 'SKU', 'category']
+                base_columns = ["Barcode", 'Product name', 'SKU', 'category', "PP"]
 
                 # Get all unique branch columns used in Alex and Ready Veg
                 used_branch_columns = set(alexandria_columns + ready_veg_columns) - set(base_columns)
@@ -471,9 +471,26 @@ def pdfToExcel():
                 alexandria_df = pivot_df[[col for col in alexandria_columns if col in pivot_df.columns]]
                 ready_veg_df = pivot_df[[col for col in ready_veg_columns if col in pivot_df.columns]]
                 cairo_df = pivot_df[[col for col in cairo_columns if col in pivot_df.columns]]
-                alexandria_df[sorted(alexandria_df.columns)]
-                ready_veg_df[sorted(ready_veg_df.columns)]
-                cairo_df[sorted(cairo_df.columns)]
+                def reorder_columns(df):
+                    # Columns to always appear first
+                    first_cols = ['Barcode', 'SKU', 'Product name']
+                    
+                    # Columns to appear last
+                    last_cols = ['PP', 'category']
+                    
+                    # Remaining columns (excluding first and last), sorted alphabetically
+                    middle_cols = sorted([col for col in df.columns if col not in first_cols + last_cols])
+                    
+                    # Final ordered list
+                    ordered_cols = first_cols + middle_cols + last_cols
+                    return df[[col for col in ordered_cols if col in df.columns]]  # filter to existing columns
+
+
+                # Apply to each dataframe
+                alexandria_df = reorder_columns(alexandria_df)
+                ready_veg_df = reorder_columns(ready_veg_df)
+                cairo_df = reorder_columns(cairo_df)
+
 
 
                 # Define category sort order
@@ -486,11 +503,12 @@ def pdfToExcel():
 
                 def add_total_and_sort(df):
                     # Identify branch columns by excluding fixed columns
-                    fixed_cols = ['Product name', 'SKU', 'category']
+                    fixed_cols = ["Barcode", 'Product name', 'SKU', 'category', "PP"]
                     branch_cols = [col for col in df.columns if col not in fixed_cols]
 
-                    # Add total column
-                    df["total"] = df[branch_cols].sum(axis=1)
+                    # Calculate total quantity and total value
+                    df["total quantity"] = df[branch_cols].sum(axis=1)
+                    df["total"] = df["PP"] * df["total quantity"]
 
                     # Map sort key for category
                     df["category_order"] = df["category"].map(category_order)
@@ -500,6 +518,23 @@ def pdfToExcel():
 
                     # Drop helper column
                     df = df.drop(columns=["category_order"])
+
+                    # Reorder columns: insert total quantity and total after PP
+                    cols = df.columns.tolist()
+                    try:
+                        pp_index = cols.index("PP")
+                    except ValueError:
+                        pp_index = 0  # Fallback
+
+                    # Remove total and total quantity from their original position
+                    cols.remove("total quantity")
+                    cols.remove("total")
+
+                    # Insert them after PP
+                    cols = cols[:pp_index+1] + ["total quantity", "total"] + cols[pp_index+1:]
+
+                    # Reorder the DataFrame
+                    df = df[cols]
 
                     return df
 
