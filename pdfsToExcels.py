@@ -544,20 +544,33 @@ def pdfToExcel():
                 ready_veg_df = add_total_and_sort(ready_veg_df)
                 cairo_df = add_total_and_sort(cairo_df)
                 def append_grand_total(df):
-                    # Ensure the columns exist
                     if not {"total quantity", "PP", "total"}.issubset(df.columns):
                         return df
 
-                    total_quantity_sum = df["total quantity"].sum()
-                    PP_sum = df["PP"].sum()
-                    total_sum = df["total"].sum()
-                    
-                    # For PP in total row, you can leave it blank, zero, or average. Here we leave it blank.
+                    cols = df.columns.tolist()
+
+                    # Get indexes
+                    try:
+                        product_name_idx = cols.index("Product name")
+                        pp_idx = cols.index("PP")
+                    except ValueError:
+                        return df  # Required columns missing
+
+                    # Columns to sum: between 'Product name' and 'PP' (exclusive)
+                    sum_columns = cols[product_name_idx + 1:pp_idx]
+
                     grand_total_row = {col: "" for col in df.columns}
                     grand_total_row["Product name"] = "Grand Total"
-                    grand_total_row["total quantity"] = total_quantity_sum
-                    grand_total_row["PP"] = PP_sum
-                    grand_total_row["total"] = total_sum
+
+                    # Sum intermediate columns
+                    for col in sum_columns:
+                        if pd.api.types.is_numeric_dtype(df[col]):
+                            grand_total_row[col] = df[col].sum()
+
+                    # Sum fixed known columns
+                    grand_total_row["total quantity"] = df["total quantity"].sum()
+                    grand_total_row["PP"] = df["PP"].sum()
+                    grand_total_row["total"] = df["total"].sum()
 
                     df = pd.concat([df, pd.DataFrame([grand_total_row])], ignore_index=True)
                     return df
@@ -571,6 +584,7 @@ def pdfToExcel():
                 alexandria_df = append_grand_total(alexandria_df)
                 ready_veg_df = append_grand_total(ready_veg_df)
                 cairo_df = append_grand_total(cairo_df)
+
 
 
                 
