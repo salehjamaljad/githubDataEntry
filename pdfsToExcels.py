@@ -14,7 +14,9 @@ from docx.shared import Inches
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from docx.shared import Inches, Pt
-import os
+from openpyxl import load_workbook
+from docx.shared import Inches, Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -152,7 +154,7 @@ def pdfToExcel():
         924863: 'يوسفي كريستينا 1كجم',
         912835: 'شمام شهد 1ك معبأ'}
     categories_dict = {
-            "فاكهة": [
+            "فاكهه": [
                 "افوكادو 500 جرام", "اناناس سكري فاخر معبأ", "برتقال عصير 2ك معبأ", "بروكلي 500 جرام", 
                 "تفاح احمر مستورد 1ك معبأ", "تفاح اخضر امريكى 1ك معبأ", "تفاح اصفر ايطالى 1ك معبأ", 
                 "تفاح سكرى جالا 1ك معبأ", "جوز هند قطعة", "زنجبيل 100 جرام معبأ", "طماطم شيرى معبأ 250 جرام", 
@@ -168,7 +170,7 @@ def pdfToExcel():
                 "ليمون بلدى فاخر معبأ 250 جرام", "بطاطا 1ك", "ثوم صيني ابيض 200جم", "فلفل اخضر كوبي 250جم", 
                 "فلفل حلو 250 جرام", "فجل احمر 500 جرام", "ليمون اضاليا 250 جرام", "جزر  معبأ 500 جرام"
             ],
-            "مجهز": [
+            "جاهز": [
                 "سوتيه فريش 350 جرام", "بسلة مفصصة بالجزر فريش 350 جرام", "بسلة مفصصة فريش 350 جرام", 
                 "خضار مشكل فريش 350 جرام", "عبوة ثوم مفصص 100 جرام", "قرع مكعبات صافى 350 جرام", 
                 "قلقاس مكعبات فريش 350 جرام", "كوسة مقورة فريش 350 جرام", "محشى مشكل فريش 350 جرام", 
@@ -177,7 +179,7 @@ def pdfToExcel():
                 "كابوتشا مقطع 350 جم", "كوسة حلقات 350جم", "ميكس كرنب سلطة مقطع فريش 350 جرام", 
                 "رمان مفرط 350 جم", "قرنبيط 500 جرام", "خضار  مشكل فريش 350 جرام", "ملوخية جاهزة350جم", "ملوخية جاهزة500جم"
             ],
-            "ورقيات وأعشاب": [
+            "أعشاب": [
                 "بصل اخضر معبأ", "بقدونس معبأ", "خس بلدي فاخر معبأ", "روزمارى فريش معبأ", "ريحان اخضر معبأ", 
                 "زعتر فريش معبأ", "شبت معبأ", "كابوتشى معبأ", "كرنب ابيض سلطة معبأ", "كرنب احمر سلطة معبأ", 
                 "كزبرة معبأ", "كرفس فرنساوي 250 جرام"
@@ -371,6 +373,7 @@ def pdfToExcel():
                     df = process_pdf(file_path)
                     po = filename.split("-")[0].strip()
                     pos_with_filenames[filename] = po
+
                     # Extract branch name for renaming
                     extracted_data = extract_eg_codes(file_path)
                     branch_name = None
@@ -379,13 +382,21 @@ def pdfToExcel():
 
                     # Use the branch name for renaming to Arabic only
                     if branch_name:
-                        output_filename = f"{branch_name}_{po}.xlsx"
+                        output_filename = f"{branch_name}_{po}_{selected_date}.xlsx"
                     else:
                         output_filename = f"{os.path.splitext(filename)[0]}.xlsx"
 
                     output_path = os.path.join(output_dir, output_filename)
-                    df["po"] = po
-                    df.to_excel(output_path, index=False, columns=[col for col in df.columns if col != "po"])
+
+                    # Save Excel without the 'po' column
+                    df.to_excel(output_path, index=False, engine='openpyxl')
+
+                    # Reopen and write PO in H1
+                    wb = load_workbook(output_path)
+                    ws = wb.active
+                    ws["H1"] = po
+                    wb.save(output_path)
+
 
             
             all_dfs = []
@@ -467,10 +478,10 @@ def pdfToExcel():
 
                 # Define category sort order
                 category_order = {
-                    "فاكهة": 1,
+                    "فاكهه": 1,
                     "خضار": 2,
-                    "مجهز": 3,
-                    "ورقيات وأعشاب": 4
+                    "جاهز": 3,
+                    "أعشاب": 4
                 }
 
                 def add_total_and_sort(df):
@@ -539,7 +550,7 @@ def pdfToExcel():
                     invoice_num = base_invoice_num
                     for branch_name in sorted_branch_names:
                         df = branch_dfs[branch_name]
-                        customer_name = f"دليفيري هيرو ديمارت ايجيبت فرع {branch_name}"
+                        customer_name = f"دليفيري هيرو ديمارت ايجيبت فرع {branch_name.split('_')[0]}"
                         po = df["po"].iloc[0] if "po" in df.columns else ""
 
                         df_to_save = df.copy()
@@ -548,61 +559,31 @@ def pdfToExcel():
                         if 'Total' in df_to_save.columns:
                             df_to_save['Total'] = ''
                         df_to_save.drop(columns=['branch', 'po'], inplace=True, errors='ignore')
+                        df_to_save = df_to_save.iloc[:, :6]
+
 
                         padded_invoice = str(invoice_num).zfill(8)
                         invoice_num += 1
 
                         doc = Document()
 
-                        # Create a 2-row, 2-column table
-                        image_table = doc.add_table(rows=2, cols=2)
-                        image_table.autofit = False  # Disable autofit to control widths
+                        
 
-                        # Adjust column widths: 3/4 for the left side (Pictures 3 & 4), 1/4 for the right side (Pictures 1 & 2)
-                        total_width = Inches(6)  # Total width of the table, you can adjust as needed
-                        left_col_width = total_width * 0.75  # 3/4 of the width
-                        right_col_width = total_width * 0.25  # 1/4 of the width
 
-                        # Apply column widths
-                        for row in image_table.rows:
-                            row.cells[0].width = left_col_width
-                            row.cells[1].width = right_col_width
-
-                        # Set picture paths
-                        pictures = {
-                            (0, 1): "Picture1.png",  # top-right (narrow)
-                            (1, 1): "Picture2.png",  # bottom-right (narrow)
-                            (0, 0): "Picture3.png",  # top-left (wide)
-                            (1, 0): "Picture4.png"   # bottom-left (wide)
-                        }
-
-                        # Add pictures and minimize vertical spacing
-                        for (row_idx, col_idx), img_path in pictures.items():
-                            try:
-                                cell = image_table.cell(row_idx, col_idx)
-                                paragraph = cell.paragraphs[0]
-                                run = paragraph.add_run()
-                                # Control image size to reduce overall table height
-                                image_width = right_col_width if col_idx == 1 else left_col_width
-                                run.add_picture(img_path, width=image_width, height=Inches(1.25))
-
-                                # Remove space above/below image
-                                paragraph.paragraph_format.space_before = Pt(0)
-                                paragraph.paragraph_format.space_after = Pt(0)
-                            except Exception as e:
-                                print(f"Error adding image {img_path}: {e}")
-
-                        p0 = doc.add_paragraph(f"فاتورة مبيعات رقم/ {padded_invoice}")
+                        p0 = doc.add_paragraph(f'شركه خضار للتجارة والتسويق  ش.ذ.م.م \n سجل تجارى / 13138 \n بطاقه ضريبية/448/294/721')
                         set_paragraph_rtl(p0)
 
-                        p1 = doc.add_paragraph(f"تحريرا في/ {selected_date}")
+                        p1 = doc.add_paragraph(f"فاتورة مبيعات رقم/ {padded_invoice}")
                         set_paragraph_rtl(p1)
 
-                        p2 = doc.add_paragraph(f"اسم العميل/ {customer_name}")
+                        p2 = doc.add_paragraph(f"تحريرا في/ {selected_date}")
                         set_paragraph_rtl(p2)
 
-                        p3 = doc.add_paragraph(f"{po}/ امر شراء رقم ")
+                        p3 = doc.add_paragraph(f"اسم العميل/ {customer_name}")
                         set_paragraph_rtl(p3)
+
+                        p4 = doc.add_paragraph(f"{po}/ امر شراء رقم ")
+                        set_paragraph_rtl(p4)
 
                         table = doc.add_table(rows=1, cols=len(df_to_save.columns))
                         table.style = 'Table Grid'
@@ -620,7 +601,7 @@ def pdfToExcel():
                         doc.save(docx_buffer)
                         docx_buffer.seek(0)
 
-                        filename = f"{branch_name}.docx"
+                        filename = f"{branch_name}_{selected_date}.docx"
                         docx_files[filename] = docx_buffer.getvalue()
 
                     return docx_files
