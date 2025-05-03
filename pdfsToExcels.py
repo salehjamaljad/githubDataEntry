@@ -543,10 +543,33 @@ def pdfToExcel():
                 alexandria_df = add_total_and_sort(alexandria_df)
                 ready_veg_df = add_total_and_sort(ready_veg_df)
                 cairo_df = add_total_and_sort(cairo_df)
-                # Filter out rows where total is 0
+                def append_grand_total(df):
+                    # Ensure the columns exist
+                    if not {"total quantity", "PP", "total"}.issubset(df.columns):
+                        return df
+
+                    total_quantity_sum = df["total quantity"].sum()
+                    total_sum = df["total"].sum()
+                    
+                    # For PP in total row, you can leave it blank, zero, or average. Here we leave it blank.
+                    grand_total_row = {col: "" for col in df.columns}
+                    grand_total_row["Product name"] = "Grand Total"
+                    grand_total_row["total quantity"] = total_quantity_sum
+                    grand_total_row["total"] = total_sum
+
+                    df = pd.concat([df, pd.DataFrame([grand_total_row])], ignore_index=True)
+                    return df
+
+                # Filter out zero total rows
                 alexandria_df = alexandria_df[alexandria_df["total"] != 0]
                 ready_veg_df = ready_veg_df[ready_veg_df["total"] != 0]
                 cairo_df = cairo_df[cairo_df["total"] != 0]
+
+                # Append grand total row
+                alexandria_df = append_grand_total(alexandria_df)
+                ready_veg_df = append_grand_total(ready_veg_df)
+                cairo_df = append_grand_total(cairo_df)
+
 
                 
 
