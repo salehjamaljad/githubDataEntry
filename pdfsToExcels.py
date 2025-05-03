@@ -549,12 +549,14 @@ def pdfToExcel():
                         return df
 
                     total_quantity_sum = df["total quantity"].sum()
+                    PP_sum = df["PP"].sum()
                     total_sum = df["total"].sum()
                     
                     # For PP in total row, you can leave it blank, zero, or average. Here we leave it blank.
                     grand_total_row = {col: "" for col in df.columns}
                     grand_total_row["Product name"] = "Grand Total"
                     grand_total_row["total quantity"] = total_quantity_sum
+                    grand_total_row["PP"] = PP_sum
                     grand_total_row["total"] = total_sum
 
                     df = pd.concat([df, pd.DataFrame([grand_total_row])], ignore_index=True)
@@ -660,7 +662,7 @@ def pdfToExcel():
                         doc.save(docx_buffer)
                         docx_buffer.seek(0)
 
-                        filename = f"{branch_name}_{selected_date}_{invoice_num}.docx"
+                        filename = f"{branch_name}_{selected_date}_{padded_invoice}.docx"
                         docx_files[filename] = docx_buffer.getvalue()
 
                     return docx_files
