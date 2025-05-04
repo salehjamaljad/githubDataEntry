@@ -16,6 +16,9 @@ from docx.oxml import OxmlElement
 from docx.shared import Inches, Pt
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Border, Side
+from openpyxl.drawing.image import Image
+from openpyxl.utils import get_column_letter
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -407,31 +410,64 @@ def pdfToExcel():
                     ws_invoice = wb.create_sheet("فاتورة")
                     
 
+                    # Define a thick border style
+                    thick_border = Border(
+                        left=Side(style='thick'),
+                        right=Side(style='thick'),
+                        top=Side(style='thick'),
+                        bottom=Side(style='thick')
+                    )
+
+                    # Write DataFrame to worksheet and apply thick border
                     for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), start=11):
                         for c_idx, value in enumerate(row, start=1):
-                            ws_invoice.cell(row=r_idx, column=c_idx, value=value)
-                    # Add "Invoice Subtotal" and "Total" below the DataFrame
-                    df_end_row = 11 + len(df) + 1  # +1 for header row
+                            cell = ws_invoice.cell(row=r_idx, column=c_idx, value=value)
+                            cell.border = thick_border
+
+                    # Static cells
+                    img = Image("Picture1.png")
+                    ws_invoice.add_image(img, "A1")
                     ws_invoice["F1"] = "فاتورة مبيعات"
                     ws_invoice["F2"] = "رقم الفاتورة #"
                     ws_invoice["F3"] = "تاريخ الاستلام "
                     ws_invoice["E3"] = selected_date
                     ws_invoice["F4"] = "امر شراء رقم"
                     ws_invoice["E4"] = po
-
                     ws_invoice["F6"] = "اسم العميل "
                     ws_invoice["E6"] = "دليفيري هيرو ديمارت ايجيبت"
                     ws_invoice["F7"] = "الفرع"
                     ws_invoice["E7"] = branch_name
-
                     ws_invoice["C1"] = "شركه خضار للتجارة والتسويق"
                     ws_invoice["A5"] = "خضار.كوم"
 
-                    ws_invoice.cell(row=df_end_row, column=4, value="Invoice Subtotal")  # D
-                    ws_invoice.cell(row=df_end_row + 1, column=4, value="Total")         # D
-                    ws_invoice.cell(row=df_end_row + 3, column=3, value="شركة خضار للتجارة و التسويق ")  # C
-                    ws_invoice.cell(row=df_end_row + 4, column=3, value="        ش.ذ.م.م")         # C
-                    ws_invoice.cell(row=df_end_row + 5, column=3, value="سجل تجارى / 13138  بطاقه ضريبية/721/294/448")         # C
+                    # Apply thick borders to static cells
+                    for cell_ref in ["F1", "F2", "F3", "E3", "F4", "E4", "F6", "E6", "F7", "E7", "C1", "A5", "E2"]:
+                        ws_invoice[cell_ref].border = thick_border
+
+                    # Add bottom cells and borders
+                    df_end_row = 11 + len(df) + 1  # +1 for header row
+
+                    ws_invoice.cell(row=df_end_row, column=4, value="Invoice Subtotal").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 1, column=4, value="Total").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 3, column=3, value="شركة خضار للتجارة و التسويق ").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 4, column=3, value="        ش.ذ.م.م").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 5, column=3, value="سجل تجارى / 13138  بطاقه ضريبية/721/294/448").border = thick_border
+
+
+                    # Adjust column widths based on max length of content in each column
+                    for col in ws_invoice.columns:
+                        max_length = 0
+                        column = col[0].column  # Get the column number
+                        column_letter = get_column_letter(column)
+                        for cell in col:
+                            try:
+                                if cell.value:
+                                    max_length = max(max_length, len(str(cell.value)))
+                            except:
+                                pass
+                        adjusted_width = max_length + 2  # Add padding
+                        ws_invoice.column_dimensions[column_letter].width = adjusted_width
+                    # Save workbook
                     wb.save(output_path)
 
 
