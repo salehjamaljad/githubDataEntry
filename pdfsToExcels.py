@@ -15,8 +15,7 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from docx.shared import Inches, Pt
 from openpyxl import load_workbook
-from docx.shared import Inches, Pt
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from openpyxl.utils.dataframe import dataframe_to_rows
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -395,6 +394,44 @@ def pdfToExcel():
                     wb = load_workbook(output_path)
                     ws = wb.active
                     ws["H1"] = po
+
+                     # Clear 'Qty' and 'Total' columns if they exist (case-insensitive match)
+                    for col in df.columns:
+                        if col.strip().lower() == "qty":
+                            df[col] = ''
+                        if col.strip().lower() == "total":
+                            df[col] = ''
+                    # Add new sheet "فاتورة" and write df starting at A11
+                    if "فاتورة" in wb.sheetnames:
+                        del wb["فاتورة"]
+                    ws_invoice = wb.create_sheet("فاتورة")
+                    
+
+                    for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), start=11):
+                        for c_idx, value in enumerate(row, start=1):
+                            ws_invoice.cell(row=r_idx, column=c_idx, value=value)
+                    # Add "Invoice Subtotal" and "Total" below the DataFrame
+                    df_end_row = 11 + len(df) + 1  # +1 for header row
+                    ws_invoice["F1"] = "فاتورة مبيعات"
+                    ws_invoice["F2"] = "رقم الفاتورة #"
+                    ws_invoice["F3"] = "تاريخ الاستلام "
+                    ws_invoice["E3"] = selected_date
+                    ws_invoice["F4"] = "امر شراء رقم"
+                    ws_invoice["E4"] = po
+
+                    ws_invoice["F6"] = "اسم العميل "
+                    ws_invoice["E6"] = "دليفيري هيرو ديمارت ايجيبت"
+                    ws_invoice["F7"] = "الفرع"
+                    ws_invoice["E7"] = branch_name
+
+                    ws_invoice["C1"] = "شركه خضار للتجارة والتسويق"
+                    ws_invoice["A5"] = "خضار.كوم"
+
+                    ws_invoice.cell(row=df_end_row, column=4, value="Invoice Subtotal")  # D
+                    ws_invoice.cell(row=df_end_row + 1, column=4, value="Total")         # D
+                    ws_invoice.cell(row=df_end_row + 3, column=3, value="شركة خضار للتجارة و التسويق ")  # C
+                    ws_invoice.cell(row=df_end_row + 4, column=3, value="        ش.ذ.م.م")         # C
+                    ws_invoice.cell(row=df_end_row + 5, column=3, value="سجل تجارى / 13138  بطاقه ضريبية/721/294/448")         # C
                     wb.save(output_path)
 
 
@@ -589,102 +626,6 @@ def pdfToExcel():
 
 
                 
-
-                
-
-                
-                
-                
-                
-                def set_paragraph_rtl(paragraph):
-                    """Set paragraph direction to RTL."""
-                    p = paragraph._p
-                    pPr = p.get_or_add_pPr()
-                    bidi = OxmlElement('w:bidi')
-                    bidi.set(qn('w:val'), '1')
-                    pPr.append(bidi)
-
-                def create_docx_from_dfs(all_dfs, selected_date, base_invoice_num, branches_dict):
-                    docx_files = {}
-
-                    # Map from branch name to its df
-                    branch_dfs = {}
-                    for df in all_dfs:
-                        if 'branch' not in df.columns:
-                            continue
-                        branch_key = df['branch'].iloc[0]
-                        branch_name = branches_dict.get(branch_key, branch_key)
-                        branch_dfs[branch_name] = df
-
-                    # Priority branches first, then alphabetical
-                    priority = ["الابراهيميه", "سيدي بشر", "وينجت"]
-                    other_branches = sorted([b for b in branch_dfs if b not in priority])
-                    sorted_branch_names = [b for b in priority if b in branch_dfs] + other_branches
-
-                    # Create documents with padded invoice numbers
-                    invoice_num = base_invoice_num
-                    for branch_name in sorted_branch_names:
-                        df = branch_dfs[branch_name]
-                        customer_name = f"دليفيري هيرو ديمارت ايجيبت فرع {branch_name.split('_')[0]}"
-                        po = df["po"].iloc[0] if "po" in df.columns else ""
-
-                        df_to_save = df.copy()
-                        if 'Qty' in df_to_save.columns:
-                            df_to_save['Qty'] = ''
-                        if 'Total' in df_to_save.columns:
-                            df_to_save['Total'] = ''
-                        df_to_save.drop(columns=['branch', 'po'], inplace=True, errors='ignore')
-                        df_to_save = df_to_save.iloc[:, :6]
-
-
-                        padded_invoice = str(invoice_num).zfill(8)
-                        invoice_num += 1
-
-                        doc = Document()
-
-                        
-
-
-                        p0 = doc.add_paragraph(f'شركه خضار للتجارة والتسويق  ش.ذ.م.م \n سجل تجارى / 13138 \n بطاقه ضريبية/448/294/721')
-                        set_paragraph_rtl(p0)
-
-                        p1 = doc.add_paragraph(f"فاتورة مبيعات رقم/ {padded_invoice}")
-                        set_paragraph_rtl(p1)
-
-                        p2 = doc.add_paragraph(f"تحريرا في/ {selected_date}")
-                        set_paragraph_rtl(p2)
-
-                        p3 = doc.add_paragraph(f"اسم العميل/ {customer_name}")
-                        set_paragraph_rtl(p3)
-
-                        p4 = doc.add_paragraph(f"{po}/ امر شراء رقم ")
-                        set_paragraph_rtl(p4)
-
-                        table = doc.add_table(rows=1, cols=len(df_to_save.columns))
-                        table.style = 'Table Grid'
-
-                        hdr_cells = table.rows[0].cells
-                        for j, column in enumerate(df_to_save.columns):
-                            hdr_cells[j].text = str(column)
-
-                        for _, row in df_to_save.iterrows():
-                            row_cells = table.add_row().cells
-                            for j, value in enumerate(row):
-                                row_cells[j].text = str(value)
-
-                        docx_buffer = BytesIO()
-                        doc.save(docx_buffer)
-                        docx_buffer.seek(0)
-
-                        filename = f"{branch_name}_{selected_date}_{padded_invoice}.docx"
-                        docx_files[filename] = docx_buffer.getvalue()
-
-                    return docx_files
-
-
-                docx_files = create_docx_from_dfs(all_dfs, selected_date, base_invoice_num, branches_dict)
-                
-                
                 
                 
                 
@@ -719,19 +660,64 @@ def pdfToExcel():
                     zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx", ready_buffer.getvalue())
                     zipf.writestr(f"مجمع_طلبات_القاهرة_{selected_date}.xlsx", cairo_buffer.getvalue())
 
-                    # Add generated DOCX files
-                    for filename, file_data in docx_files.items():
-                        zipf.writestr(filename, file_data)
+                # After all processing (creating Excel files and updating branch_offsets)
+                # Now assign invoice numbers based on branch_offsets and update E2 in the Excel files
+
+                special_branches = ["الابراهيميه", "سيدي بشر", "وينجت"]
+                branch_offsets = {}
+
+                # Step 1: Gather all .xlsx files
+                filenames = [f for f in os.listdir(output_dir) if f.endswith(".xlsx")]
+
+                # Step 2: Map filenames to branch names
+                file_branch_map = {filename: filename.split("_")[0] for filename in filenames}
+
+                # Step 3: Determine the ordered list of branches
+                present_specials = [b for b in special_branches if b in file_branch_map.values()]
+                other_branches = sorted(set(file_branch_map.values()) - set(special_branches))
+
+                # Step 4: Assign offsets based on required priority
+                offset = 0
+                for b in present_specials + other_branches:
+                    branch_offsets[b] = offset
+                    offset += 1
+
+                # Step 5: Assign invoice number and update Excel files
+                for filename, branch_name in file_branch_map.items():
+                    final_invoice_number = base_invoice_num + branch_offsets.get(branch_name, 0)
+                    output_path = os.path.join(output_dir, filename)
+
+                    wb = load_workbook(output_path)
+                    if "فاتورة" in wb.sheetnames:
+                        ws = wb["فاتورة"]
+                        ws["E2"] = final_invoice_number
+                        wb.save(output_path)
+
+
+                # After all Excel files have been updated, create the ZIP file with the updated Excel files
+
+                output_zip_buffer = BytesIO()
+                with zipfile.ZipFile(output_zip_buffer, "w") as zipf:
+                    # Add Excel files from output_dir
+                    for excel_file in os.listdir(output_dir):
+                        excel_path = os.path.join(output_dir, excel_file)
+                        zipf.write(excel_path, arcname=excel_file)
+
+                    # Add in-memory Excel dataframes
+                    zipf.writestr(f"مجمع_طلبات_اسكندرية_{selected_date}.xlsx", alex_buffer.getvalue())
+                    zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx", ready_buffer.getvalue())
+                    zipf.writestr(f"مجمع_طلبات_القاهرة_{selected_date}.xlsx", cairo_buffer.getvalue())
 
                 output_zip_buffer.seek(0)
 
                 st.success("Processing complete!")
-                
+
                 st.download_button(
                     label="Download All Files as ZIP",
                     data=output_zip_buffer.getvalue(),
                     file_name="documents.zip",
                     mime="application/zip"
                 )
+
 if __name__ == "__main__":
     pdfToExcel()
