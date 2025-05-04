@@ -590,8 +590,7 @@ def pdfToExcel():
 
                 
 
-                egypt_tz = pytz.timezone('Africa/Cairo')
-                selected_date = datetime.now(egypt_tz).strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
+                
 
                 
                 
