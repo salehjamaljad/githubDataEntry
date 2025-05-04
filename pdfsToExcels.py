@@ -591,7 +591,7 @@ def pdfToExcel():
                 
 
                 egypt_tz = pytz.timezone('Africa/Cairo')
-                today_str = datetime.now(egypt_tz).strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
+                selected_date = datetime.now(egypt_tz).strftime("%Y-%m-%d")  # Format: YYYY-MM-DD
 
                 
                 
@@ -716,9 +716,9 @@ def pdfToExcel():
                         zipf.write(excel_path, arcname=excel_file)
 
                     # Add in-memory Excel dataframes
-                    zipf.writestr(f"مجمع_طلبات_اسكندرية_{today_str}.xlsx", alex_buffer.getvalue())
-                    zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{today_str}.xlsx", ready_buffer.getvalue())
-                    zipf.writestr(f"مجمع_طلبات_القاهرة_{today_str}.xlsx", cairo_buffer.getvalue())
+                    zipf.writestr(f"مجمع_طلبات_اسكندرية_{selected_date}.xlsx", alex_buffer.getvalue())
+                    zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx", ready_buffer.getvalue())
+                    zipf.writestr(f"مجمع_طلبات_القاهرة_{selected_date}.xlsx", cairo_buffer.getvalue())
 
                     # Add generated DOCX files
                     for filename, file_data in docx_files.items():
