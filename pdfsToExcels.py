@@ -19,6 +19,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Border, Side
 from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -160,7 +161,7 @@ def pdfToExcel():
                 "افوكادو 500 جرام", "اناناس سكري فاخر معبأ", "برتقال عصير 2ك معبأ", "بروكلي 500 جرام", 
                 "تفاح احمر مستورد 1ك معبأ", "تفاح اخضر امريكى 1ك معبأ", "تفاح اصفر ايطالى 1ك معبأ", 
                 "تفاح سكرى جالا 1ك معبأ", "جوز هند قطعة", "زنجبيل 100 جرام معبأ", "طماطم شيرى معبأ 250 جرام", 
-                "عنب اسود مستورد 500 جرام معبأ", "قصب مقشر350جم", "كنتالوب 2ك معبأ", "كيوي فاخر 250 جرام معبأ", 
+                "عنب اسود مستورد 500 جرام معبأ", "كنتالوب 2ك معبأ", "كيوي فاخر 250 جرام معبأ", 
                 "مشروم 200 جرام معبأ", "موز بلدي فاخر 1ك معبأ", "موز مستورد 1ك", "يوسفي موركت 1ك", 
                 "ابوفروة 250جم", "فول سوداني 500جم", "يوسفي بلدي 1كجم", "ذرة سكري 2 قطعه", "تفاح أصفر إيطالي", "بطيخ احمر بدون بذر", "بطيخ اصفر بدون بذر",
                 "خوخ سكرى", "عنب اسود 1ك", "عنب ايرلي سويت ابيض 1ك", "بطيخ", "خوخ محلي 1كجم"
@@ -178,13 +179,13 @@ def pdfToExcel():
                 "قلقاس مكعبات فريش 350 جرام", "كوسة مقورة فريش 350 جرام", "محشى مشكل فريش 350 جرام", 
                 "بطاطس شرائح 350 جم", "بطاطس شيبسى فريش 350 جرام", "بطاطس صوابع فريش 350 جرام", 
                 "جزر مقطع 350 جم", "فاصوليا مقطعة فريش 350 جرام", "فلفل مقور محشي 350 جم", 
-                "كابوتشا مقطع 350 جم", "كوسة حلقات 350جم", "ميكس كرنب سلطة مقطع فريش 350 جرام", 
-                "رمان مفرط 350 جم", "قرنبيط 500 جرام", "خضار  مشكل فريش 350 جرام", "ملوخية جاهزة350جم", "ملوخية جاهزة500جم"
+                "كابوتشا مقطع 350 جم", "كوسة حلقات 350جم", "ميكس كرنب سلطة مقطع فريش 350 جرام", "قصب مقشر350جم",
+                "رمان مفرط 350 جم", "قرنبيط 500 جرام", "خضار  مشكل فريش 350 جرام", "ملوخية جاهزة350جم"
             ],
             "اعشاب": [
                 "بصل اخضر معبأ", "بقدونس معبأ", "خس بلدي فاخر معبأ", "روزمارى فريش معبأ", "ريحان اخضر معبأ", 
                 "زعتر فريش معبأ", "شبت معبأ", "كابوتشى معبأ", "كرنب ابيض سلطة معبأ", "كرنب احمر سلطة معبأ", 
-                "كزبرة معبأ", "كرفس فرنساوي 250 جرام"
+                "كزبرة معبأ", "كرفس فرنساوي 250 جرام", "ملوخية جاهزة500جم"
             ]}
     # Dictionary of branches
     branches_dict = {
@@ -420,9 +421,15 @@ def pdfToExcel():
 
                     # Write DataFrame to worksheet and apply thick border
                     for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), start=11):
+                        ws_invoice.row_dimensions[r_idx].height = 21  # Set row height to 35 pixels
                         for c_idx, value in enumerate(row, start=1):
                             cell = ws_invoice.cell(row=r_idx, column=c_idx, value=value)
                             cell.border = thick_border
+                            cell.alignment = Alignment(horizontal='center', vertical='center')
+                            # If this is the Barcode column, apply number format to prevent scientific notation
+                            if df.columns[c_idx - 1].lower() == 'barcode' and isinstance(value, (int, float)):
+                                cell.number_format = '0'  # No decimals, no scientific notation
+
 
                     # Static cells
                     img = Image("Picture1.png")
@@ -438,20 +445,35 @@ def pdfToExcel():
                     ws_invoice["F7"] = "الفرع"
                     ws_invoice["E7"] = branch_name
                     ws_invoice["C1"] = "شركه خضار للتجارة والتسويق"
+                    ws_invoice["C1"].alignment = Alignment(horizontal='center', vertical='center')
+
+                    ws_invoice["C2"] = "Khodar for Trading & Marketing"
+                    ws_invoice["C2"].alignment = Alignment(horizontal='center', vertical='center')
                     ws_invoice["A5"] = "خضار.كوم"
 
                     # Apply thick borders to static cells
-                    for cell_ref in ["F1", "F2", "F3", "E3", "F4", "E4", "F6", "E6", "F7", "E7", "C1", "A5", "E2"]:
-                        ws_invoice[cell_ref].border = thick_border
+                    #for cell_ref in ["F1", "F2", "F3", "E3", "F4", "E4", "F6", "E6", "F7", "E7", "E2"]:
+                        #ws_invoice[cell_ref].border = thick_border
 
                     # Add bottom cells and borders
                     df_end_row = 11 + len(df) + 1  # +1 for header row
 
+                    center_align = Alignment(horizontal='center', vertical='center')
+
                     ws_invoice.cell(row=df_end_row, column=4, value="Invoice Subtotal").border = thick_border
+                    ws_invoice.cell(row=df_end_row, column=4).alignment = center_align
+
                     ws_invoice.cell(row=df_end_row + 1, column=4, value="Total").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 1, column=4).alignment = center_align
+
                     ws_invoice.cell(row=df_end_row + 3, column=3, value="شركة خضار للتجارة و التسويق ").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 3, column=3).alignment = center_align
+
                     ws_invoice.cell(row=df_end_row + 4, column=3, value="        ش.ذ.م.م").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 4, column=3).alignment = center_align
+
                     ws_invoice.cell(row=df_end_row + 5, column=3, value="سجل تجارى / 13138  بطاقه ضريبية/721/294/448").border = thick_border
+                    ws_invoice.cell(row=df_end_row + 5, column=3).alignment = center_align
 
 
                     # Adjust column widths based on max length of content in each column
