@@ -20,6 +20,7 @@ from openpyxl.styles import Border, Side
 from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
+from openpyxl.styles import Font
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -418,13 +419,19 @@ def pdfToExcel():
                         top=Side(style='thick'),
                         bottom=Side(style='thick')
                     )
+                    thin_border = Border(
+                        left=Side(style='thin'),
+                        right=Side(style='thin'),
+                        top=Side(style='thin'),
+                        bottom=Side(style='thin')
+                    )
 
                     # Write DataFrame to worksheet and apply thick border
                     for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), start=11):
                         ws_invoice.row_dimensions[r_idx].height = 21  # Set row height to 35 pixels
                         for c_idx, value in enumerate(row, start=1):
                             cell = ws_invoice.cell(row=r_idx, column=c_idx, value=value)
-                            cell.border = thick_border
+                            cell.border = thin_border
                             cell.alignment = Alignment(horizontal='center', vertical='center')
                             # If this is the Barcode column, apply number format to prevent scientific notation
                             if df.columns[c_idx - 1].lower() == 'barcode' and isinstance(value, (int, float)):
@@ -452,28 +459,39 @@ def pdfToExcel():
                     ws_invoice["A5"] = "خضار.كوم"
 
                     # Apply thick borders to static cells
-                    #for cell_ref in ["F1", "F2", "F3", "E3", "F4", "E4", "F6", "E6", "F7", "E7", "E2"]:
-                        #ws_invoice[cell_ref].border = thick_border
+                    for cell_ref in ["F1", "F2", "F3", "E3", "F4", "E4", "F6", "E6", "F7", "E7", "E2", "C1", "C2", "A5"]:
+                        ws_invoice[cell_ref].border = thick_border
 
                     # Add bottom cells and borders
                     df_end_row = 11 + len(df) + 1  # +1 for header row
 
                     center_align = Alignment(horizontal='center', vertical='center')
 
-                    ws_invoice.cell(row=df_end_row, column=4, value="Invoice Subtotal").border = thick_border
-                    ws_invoice.cell(row=df_end_row, column=4).alignment = center_align
+                    # Merge and write "Invoice Subtotal" in row df_end_row
+                    ws_invoice.merge_cells(start_row=df_end_row, start_column=1, end_row=df_end_row, end_column=5)
+                    ws_invoice.cell(row=df_end_row, column=1, value="Invoice Subtotal")
+                    ws_invoice.cell(row=df_end_row, column=1).border = thick_border
+                    ws_invoice.cell(row=df_end_row, column=1).alignment = center_align
+                    ws_invoice.cell(row=df_end_row, column=6).border = thick_border
 
-                    ws_invoice.cell(row=df_end_row + 1, column=4, value="Total").border = thick_border
-                    ws_invoice.cell(row=df_end_row + 1, column=4).alignment = center_align
+                    # Merge and write "Total" in row df_end_row + 1
+                    ws_invoice.merge_cells(start_row=df_end_row + 1, start_column=1, end_row=df_end_row + 1, end_column=5)
+                    ws_invoice.cell(row=df_end_row + 1, column=1, value="Total")
+                    ws_invoice.cell(row=df_end_row + 1, column=1).border = thick_border
+                    ws_invoice.cell(row=df_end_row + 1, column=1).alignment = center_align
+                    ws_invoice.cell(row=df_end_row + 1, column=6).border = thick_border
 
-                    ws_invoice.cell(row=df_end_row + 3, column=3, value="شركة خضار للتجارة و التسويق ").border = thick_border
-                    ws_invoice.cell(row=df_end_row + 3, column=3).alignment = center_align
+                    ws_invoice.merge_cells(start_row=df_end_row + 3, start_column=1, end_row=df_end_row + 3, end_column=6)
+                    ws_invoice.cell(row=df_end_row + 3, column=1, value="شركة خضار للتجارة و التسويق ")
+                    ws_invoice.cell(row=df_end_row + 3, column=1).alignment = center_align
 
-                    ws_invoice.cell(row=df_end_row + 4, column=3, value="        ش.ذ.م.م").border = thick_border
-                    ws_invoice.cell(row=df_end_row + 4, column=3).alignment = center_align
+                    ws_invoice.merge_cells(start_row=df_end_row + 4, start_column=1, end_row=df_end_row + 4, end_column=6)
+                    ws_invoice.cell(row=df_end_row + 4, column=1, value="        ش.ذ.م.م")
+                    ws_invoice.cell(row=df_end_row + 4, column=1).alignment = center_align
 
-                    ws_invoice.cell(row=df_end_row + 5, column=3, value="سجل تجارى / 13138  بطاقه ضريبية/721/294/448").border = thick_border
-                    ws_invoice.cell(row=df_end_row + 5, column=3).alignment = center_align
+                    ws_invoice.merge_cells(start_row=df_end_row + 5, start_column=1, end_row=df_end_row + 5, end_column=6)
+                    ws_invoice.cell(row=df_end_row + 5, column=1, value="سجل تجارى / 13138  بطاقه ضريبية/721/294/448")
+                    ws_invoice.cell(row=df_end_row + 5, column=1).alignment = center_align
 
 
                     # Adjust column widths based on max length of content in each column
@@ -489,6 +507,12 @@ def pdfToExcel():
                                 pass
                         adjusted_width = max_length + 2  # Add padding
                         ws_invoice.column_dimensions[column_letter].width = adjusted_width
+                    # Loop through all used cells and apply bold formatting
+                    for row in ws_invoice.iter_rows():
+                        for cell in row:
+                            if cell.value or cell.coordinate == "E2":
+                                cell.font = Font(bold=True)
+
                     # Save workbook
                     wb.save(output_path)
 
