@@ -499,14 +499,19 @@ def pdfToExcel():
                         max_length = 0
                         column = col[0].column  # Get the column number
                         column_letter = get_column_letter(column)
-                        for cell in col:
-                            try:
-                                if cell.value:
-                                    max_length = max(max_length, len(str(cell.value)))
-                            except:
-                                pass
-                        adjusted_width = max_length + 2  # Add padding
-                        ws_invoice.column_dimensions[column_letter].width = adjusted_width
+                        
+                        if column_letter == 'A':  # Check if the column is "A"
+                            ws_invoice.column_dimensions[column_letter].width = 10  # Set column A width to 10
+                        else:
+                            for cell in col:
+                                try:
+                                    if cell.value:
+                                        max_length = max(max_length, len(str(cell.value)))
+                                except:
+                                    pass
+                            adjusted_width = max_length + 2  # Add padding
+                            ws_invoice.column_dimensions[column_letter].width = adjusted_width
+
                     # Loop through all used cells and apply bold formatting
                     for row in ws_invoice.iter_rows():
                         for cell in row:
