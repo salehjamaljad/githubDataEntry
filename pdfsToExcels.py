@@ -21,6 +21,12 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 from openpyxl.styles import Font
+from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Font, Alignment, Border, PatternFill, Side
+from openpyxl.utils import get_column_letter
+import os
+
 def pdfToExcel():
     # Define your standard column names
     columns = [
@@ -780,20 +786,83 @@ def pdfToExcel():
                         ws["E2"] = final_invoice_number
                         wb.save(output_path)
 
+               # Create a new workbook for consolidation
+                consolidated_wb = Workbook()
+                consolidated_wb.remove(consolidated_wb.active)
+
+                for filename in filenames:
+                    file_path = os.path.join(output_dir, filename)
+                    wb = load_workbook(file_path, data_only=True)
+                    if "فاتورة" in wb.sheetnames:
+                        source_ws = wb["فاتورة"]
+                        new_sheet_name = os.path.splitext(filename)[0][:31]  # Sheet name max length is 31
+                        target_ws = consolidated_wb.create_sheet(title=new_sheet_name)
+                        for merged_range in source_ws.merged_cells.ranges:
+                            target_ws.merge_cells(str(merged_range))
+
+                        for row in source_ws.iter_rows():
+                            for cell in row:
+                                new_cell = target_ws.cell(row=cell.row, column=cell.column, value=cell.value)
+
+                                # Copy styles safely
+                                new_cell.font = Font(
+                                    name=cell.font.name,
+                                    size=cell.font.size,
+                                    bold=cell.font.bold,
+                                    italic=cell.font.italic,
+                                    vertAlign=cell.font.vertAlign,
+                                    underline=cell.font.underline,
+                                    strike=cell.font.strike,
+                                    color=cell.font.color
+                                )
+                                new_cell.alignment = Alignment(
+                                    horizontal=cell.alignment.horizontal,
+                                    vertical=cell.alignment.vertical,
+                                    wrap_text=cell.alignment.wrap_text
+                                )
+                                new_cell.border = Border(
+                                    left=cell.border.left,
+                                    right=cell.border.right,
+                                    top=cell.border.top,
+                                    bottom=cell.border.bottom
+                                )
+                                new_cell.fill = PatternFill(
+                                    fill_type=cell.fill.fill_type,
+                                    fgColor=cell.fill.fgColor,
+                                    bgColor=cell.fill.bgColor
+                                )
+                                new_cell.number_format = cell.number_format
+                        # Step 3: Copy row heights
+                        for row in source_ws.iter_rows():
+                            target_ws.row_dimensions[row[0].row].height = source_ws.row_dimensions[row[0].row].height
+
+                        # Step 4: Copy column widths
+                        for col in source_ws.columns:
+                            column_letter = get_column_letter(col[0].column)
+                            target_ws.column_dimensions[column_letter].width = source_ws.column_dimensions[column_letter].width
+                        # Step 5: Add picture to A1 in the new sheet
+                        img = Image("Picture1.png")
+                        target_ws.add_image(img, 'A1')
+               
+
+                # Save the consolidated workbook to a BytesIO object
+                invoices_buffer = BytesIO()
+                consolidated_wb.save(invoices_buffer)
+                invoices_buffer.seek(0)
+
 
                 # After all Excel files have been updated, create the ZIP file with the updated Excel files
-
                 output_zip_buffer = BytesIO()
                 with zipfile.ZipFile(output_zip_buffer, "w") as zipf:
-                    # Add Excel files from output_dir
                     for excel_file in os.listdir(output_dir):
                         excel_path = os.path.join(output_dir, excel_file)
                         zipf.write(excel_path, arcname=excel_file)
 
-                    # Add in-memory Excel dataframes
                     zipf.writestr(f"مجمع_طلبات_اسكندرية_{selected_date}.xlsx", alex_buffer.getvalue())
                     zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx", ready_buffer.getvalue())
                     zipf.writestr(f"مجمع_طلبات_القاهرة_{selected_date}.xlsx", cairo_buffer.getvalue())
+                    zipf.writestr(f"فواتير.xlsx", invoices_buffer.getvalue())
+
 
                 output_zip_buffer.seek(0)
 
