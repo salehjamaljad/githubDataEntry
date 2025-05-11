@@ -237,13 +237,14 @@ def pdfToExcel():
         "EG_Tagamoa Golden Sq_DS_45": "التجمع جولدن سكوير",
         "EG_Tanta_DS_24": "طنطا",
         "EG_Zakazik_DS_33": "الزقازيق",
-        "EG_Heliopolis_Sheraton_DS_52": "هيليوبليس شيراتون"
+        "EG_Heliopolis_Sheraton_DS_52": "هيليوبليس شيراتون",
+        "EG_Shrouk_ Mgawra (2)_DS_51": "الشروق 2"
     }
 
     # Special EG_ codes that need to capture the next word too
     special_codes = {
         "EG_Alex East_DS_", "EG_Alex", "EG_Zahraa Maadi", "EG_Nasrcity", "EG_Mansoura", 
-        "EG_Tagamoa Golden", "EG_Tagamoa", "EG_Madinaty", "EG_Hadayek", "EG_October"
+        "EG_Tagamoa Golden", "EG_Tagamoa", "EG_Madinaty", "EG_Hadayek", "EG_October", "EG_Shrouk_"
     }
 
     def extract_eg_codes(pdf_path):
@@ -348,7 +349,10 @@ def pdfToExcel():
         df['PP'] = df['PP'].astype(float)
         df['Total'] = df['Total'].astype(float)
         df['Qty'] = df['Qty'].astype(int)
-        df['Barcode'] = df['Barcode'].astype(int)
+        try:
+            df['Barcode'] = df['Barcode'].astype(int)
+        except OverflowError:
+            df['Barcode'] = df['Barcode'].astype(float)
         df['SKU'] = df['SKU'].astype(int)
         df["Item Name Ar"] = df["SKU"].map(translation_dict)
         df = df[['SKU', 'Barcode', 'Item Name Ar', 'PP', 'Qty', 'Total']]
