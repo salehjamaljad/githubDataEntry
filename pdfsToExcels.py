@@ -26,6 +26,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, Alignment, Border, PatternFill, Side
 from openpyxl.utils import get_column_letter
 import os
+import re
 
 def pdfToExcel():
     # Define your standard column names
@@ -385,7 +386,8 @@ def pdfToExcel():
                 if filename.endswith(".pdf"):
                     file_path = os.path.join(temp_dir, filename)
                     df = process_pdf(file_path)
-                    po = filename.split("-")[0].strip()
+                    match = re.search(r"(PO\d+)", filename)
+                    po = match.group(1) if match else None
                     pos_with_filenames[filename] = po
 
                     # Extract branch name for renaming
