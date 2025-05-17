@@ -4,13 +4,15 @@ from stockKeepingDataEntry import stock_app
 from dashboardApp import dashboardApp
 from pivotApp import pivot_app
 from pdfsToExcels import pdfToExcel
+from breadfastInvoices import breadfastInvoices
 # Demo user credentials
 users = {
     "khodar1": {"password": "pricing", "access": "pricing"},
     "khodar2": {"password": "stock", "access": "stock"},
     "khodar3": {"password": "dashboard", "access": "dashboard"},
     "khodar4": {"password": "pivot", "access": "pivot"},
-    "khodar5": {"password": "pdfToExcel", "access": "pdfToExcel"}
+    "khodar5": {"password": "pdfToExcel", "access": "pdfToExcel"},
+    "khodar5": {"password": "breadfastInvoices", "access": "breadfastInvoices"}
 }
 
 def main():
@@ -41,3 +43,5 @@ else:
         pivot_app()
     elif st.session_state["access"] == "pdfToExcel":
         pdfToExcel()
+    elif st.session_state["access"] == "breadfastInvoices":
+        breadfastInvoices()
