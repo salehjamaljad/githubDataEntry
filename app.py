@@ -12,7 +12,7 @@ users = {
     "khodar3": {"password": "dashboard", "access": "dashboard"},
     "khodar4": {"password": "pivot", "access": "pivot"},
     "khodar5": {"password": "pdfToExcel", "access": "pdfToExcel"},
-    "khodar5": {"password": "breadfastInvoices", "access": "breadfastInvoices"}
+    "khodar6": {"password": "breadfastInvoices", "access": "breadfastInvoices"}
 }
 
 def main():
