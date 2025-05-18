@@ -6,6 +6,7 @@ from pivotApp import pivot_app
 from pdfsToExcels import pdfToExcel
 from breadfastInvoices import breadfastInvoices
 from rabbitInvoices import rabbitInvoices
+from goodsmartInvoices import goodsmartInvoices
 # Demo user credentials
 users = {
     "khodar1": {"password": "pricing", "access": "pricing"},
@@ -14,7 +15,8 @@ users = {
     "khodar4": {"password": "pivot", "access": "pivot"},
     "khodar5": {"password": "pdfToExcel", "access": "pdfToExcel"},
     "khodar6": {"password": "breadfastInvoices", "access": "breadfastInvoices"},
-    "khodar8": {"password": "rabbitInvoices", "access": "rabbitInvoices"}
+    "khodar8": {"password": "rabbitInvoices", "access": "rabbitInvoices"},
+    "khodar9": {"password": "GoodsMartInvoices", "access": "goodsmartInvoices"}
 }
 
 def main():
@@ -49,3 +51,5 @@ else:
         breadfastInvoices()
     elif st.session_state["access"] == "rabbitInvoices":
         rabbitInvoices()
+    elif st.session_state["access"] == "goodsmartInvoices":
+        goodsmartInvoices()
