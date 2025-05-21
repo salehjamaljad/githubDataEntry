@@ -159,8 +159,8 @@ def rabbitInvoices():
                     for df in list_of_dfs[1:]:
                         merged_df = pd.merge(merged_df, df, on=["SKU", "Barcode", "Arabic Product Name", "Unit Cost"], how="outer")
 
-                    # Fill NaNs in branch columns with 0
-                    branch_cols = [col for col in merged_df.columns if col not in ["SKU", "Barcode", "Arabic Product Name", "Unit Cost"]]
+                    # Identify and sort branch columns alphabetically
+                    branch_cols = sorted([col for col in merged_df.columns if col not in ["SKU", "Barcode", "Arabic Product Name", "Unit Cost"]])
                     merged_df[branch_cols] = merged_df[branch_cols].fillna(0)
 
                     # Add Total Quantity
@@ -168,13 +168,13 @@ def rabbitInvoices():
 
                     # Reorder: move Unit Cost to last before Grand Total
                     reordered_cols = ["SKU", "Barcode", "Arabic Product Name"] + branch_cols + ["Total Quantity", "Unit Cost"]
-
                     merged_df = merged_df[reordered_cols]
 
                     # Add Grand Total
                     merged_df["Grand Total"] = merged_df["Total Quantity"] * merged_df["Unit Cost"]
 
                     return merged_df
+
 
                 khateer_pivot = create_aggregated_df(khateer_data)
                 khodar_pivot = create_aggregated_df(khodar_data)
