@@ -303,6 +303,7 @@ def pdfToExcel():
         "EG_Alex West_DS_27": "الابراهيميه",
         "EG_Alex_Wingat_DS_41": "وينجت",
         "EG_Cairo_DS_1": "المعادي لاسلكي",
+        "EG_Cairo_DS_18": "حدائق الاهرام",
         "EG_Cairo_DS_16": "الظاهر",
         "EG_Cairo_DS_6": "المقطم",
         "EG_Cairo_DS_15": "السيدة زينب",
@@ -348,13 +349,14 @@ def pdfToExcel():
         "EG_Tanta_DS_24": "طنطا",
         "EG_Zakazik_DS_33": "الزقازيق",
         "EG_Heliopolis_Sheraton_DS_52": "هيليوبليس شيراتون",
-        "EG_Shrouk_ Mgawra (2)_DS_51": "الشروق 2"
+        "EG_Shrouk_ Mgawra (2)_DS_51": "الشروق 2",
+        "EG_Sheikh zayed (2)_DS_53": "زايد 2"
     }
 
     # Special EG_ codes that need to capture the next word too
     special_codes = {
         "EG_Alex East_DS_", "EG_Alex", "EG_Zahraa Maadi", "EG_Nasrcity", "EG_Mansoura", 
-        "EG_Tagamoa Golden", "EG_Tagamoa", "EG_Madinaty", "EG_Hadayek", "EG_October", "EG_Shrouk_", "EG_Mokatam"
+        "EG_Tagamoa Golden", "EG_Tagamoa", "EG_Madinaty", "EG_Hadayek", "EG_October", "EG_Shrouk_", "EG_Mokatam", "EG_Sheikh"
     }
 
     def extract_eg_codes(pdf_path):
@@ -698,7 +700,8 @@ def pdfToExcel():
                 alexandria_columns = ["Barcode",'Product name', 'SKU', 'category', "PP",'سيدي بشر', 'الابراهيميه', 'وينجت']
                 ready_veg_columns = ["Barcode",'Product name', 'SKU', 'category',  "PP", 'المعادي لاسلكي', 'الدقي', 'زهراء المعادي',
                                     'ميدان لبنان', 'العجوزة', 'كورنيش المعادي', 'زهراء المعادي - 2', "الظاهر", "المقطم", "السيدة زينب", "حلوان",
-                                    "المنيل", "المقطم 2 هضبة", "شبرا"]
+                                    "المنيل", "المقطم 2 هضبة", "شبرا", "زايد 2", "حدائق الاهرام", "هيليوبليس", "اكتوبر", "سيتي ستارز",
+                                    "الشيخ زايد", "بالم هيلز"]
                 
                 
                 # Always-include base columns
