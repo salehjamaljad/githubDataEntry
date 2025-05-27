@@ -30,6 +30,7 @@ def rabbitInvoices():
 
                             branch = str(df2.iloc[1, 1]).strip()
                             order_number = int(df2.iloc[2, 6])
+                            invoice_total = df2.iloc[-9, -1]
                             delivery_date = pd.to_datetime(
                                 df2.iloc[1, 6], errors="coerce"
                             ).strftime("%Y-%m-%d")
@@ -116,7 +117,8 @@ def rabbitInvoices():
                                 invoice_ws.write_blank(last_row, 4, "", bold_border_right)
 
                                 invoice_ws.merge_range(last_row + 1, 0, last_row + 1, 3, "Total", bold_merge)
-                                invoice_ws.write_blank(last_row + 1, 4, "", bold_border_right)
+                                invoice_ws.write(last_row + 1, 4, invoice_total, bold_border_right)
+
 
                                 footer_start = last_row + 3
                                 footer_texts = [
