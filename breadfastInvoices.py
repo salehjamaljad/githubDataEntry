@@ -592,11 +592,11 @@ def breadfastInvoices():
                 st.subheader("Extracted PO Values")
                 st.write(f"PO لوران: {po_loran}")
                 st.write(f"PO سموحة: {po_smouha}")
-
+                st.info(f"اخر رقم فاتورة هو:{invoice_num_smouha}")
                 st.download_button(
                     label="Download ZIP with Both Branch Orders",
                     data=zip_buffer.getvalue(),
-                    file_name="orders_by_branch.zip",
+                    file_name=f"breadfast_alex_{delivery_date}.zip",
                     mime="application/zip"
                 )
     elif action == 'المنصورة':
@@ -779,10 +779,11 @@ def breadfastInvoices():
                 zip_file.writestr("فاتورة المنصورة.xlsx", invoice_excel.getvalue())
 
             zip_buffer.seek(0)
+            st.info(f"اخر رقم فاتورة هو:{mansoura_invoice_num}")
             st.download_button(
                 label="Download ZIP - Mansoura Invoice",
                 data=zip_buffer.getvalue(),
-                file_name="mansoura_invoice_files.zip",
+                file_name=f"mansoura_invoice_files_{delivery_date}.zip",
                 mime="application/zip"
             )
 if __name__ == "__main__":
