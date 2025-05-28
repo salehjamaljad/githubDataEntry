@@ -449,7 +449,7 @@ def goodsmartInvoices():
 
         # Generate Excel with invoice sheet
         excel_file = create_excel_file(df, int(invoice_number), delivery_date, po_value)
-
+        st.info(invoice_number)
         # Provide download button
         st.download_button(
             label="Download Invoice Excel",
