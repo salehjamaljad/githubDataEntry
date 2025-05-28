@@ -986,11 +986,11 @@ def pdfToExcel():
                 output_zip_buffer.seek(0)
 
                 st.success("Processing complete!")
-
+                st.info(f"last invoice number generated: {offset + base_invoice_num-1}")
                 st.download_button(
                     label="Download All Files as ZIP",
                     data=output_zip_buffer.getvalue(),
-                    file_name="documents.zip",
+                    file_name=f"talabat_documents_{selected_date}.zip",
                     mime="application/zip"
                 )
 
