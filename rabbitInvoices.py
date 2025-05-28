@@ -190,12 +190,13 @@ def rabbitInvoices():
                     khodar_buffer = io.BytesIO()
                     khodar_pivot.to_excel(khodar_buffer, index=False)
                     output_zip.writestr("مجمع رابيت.xlsx", khodar_buffer.getvalue())
-
+            last_invoice_number = base_invoice_num + file_index  # Add this line here
             st.success("Processing complete.")
+            st.info(f"آخر رقم فاتورة تم استخدامه هو: {last_invoice_number}")
             st.download_button(
                 label="Download ZIP with Cleaned and Pivoted Files",
                 data=output_zip_io.getvalue(),
-                file_name="rabbit & Khateer Files.zip",
+                file_name=f"rabbit & Khateer Files_{delivery_date}.zip",
                 mime="application/zip"
             )
 if __name__ == "__main__":
