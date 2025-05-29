@@ -23,7 +23,9 @@ def rabbitInvoices():
                 khateer_data = []
                 khodar_data = []
                 po_totals_rows = []
-                
+                invoice_zip_buffer = io.BytesIO()
+                invoice_zip = zipfile.ZipFile(invoice_zip_buffer, "w")
+
                 for file_index, file_name in enumerate(zip_ref.namelist()):
                     if not file_name.endswith(".xlsx") or file_name.startswith("__MACOSX"):
                         continue
@@ -161,7 +163,7 @@ def rabbitInvoices():
 
                             # After exiting the 'with pd.ExcelWriter' block:
                             excel_buffer.seek(0)
-                            output_zip.writestr(output_filename, excel_buffer.getvalue())
+                            invoice_zip.writestr(output_filename, excel_buffer.getvalue())
 
                             # Prepare for pivot
                             pivot_cols = ["SKU", "Barcode", "Arabic Product Name", "Unit Cost", "Total PC"]
@@ -206,6 +208,11 @@ def rabbitInvoices():
                 khateer_pivot = create_aggregated_df(khateer_data)
                 khodar_pivot = create_aggregated_df(khodar_data)
 
+                # Close nested invoice ZIP and add it to the main ZIP
+                invoice_zip.close()
+                output_zip.writestr("invoices.zip", invoice_zip_buffer.getvalue())
+
+                # Add summary files directly to main ZIP
                 if khateer_pivot is not None:
                     khateer_buffer = io.BytesIO()
                     khateer_pivot.to_excel(khateer_buffer, index=False)
@@ -215,12 +222,14 @@ def rabbitInvoices():
                     khodar_buffer = io.BytesIO()
                     khodar_pivot.to_excel(khodar_buffer, index=False)
                     output_zip.writestr("مجمع رابيت.xlsx", khodar_buffer.getvalue())
+
                 if po_totals_rows:
                     po_totals_df = pd.DataFrame(po_totals_rows)
                     po_totals_df["Invoice Total"] = pd.to_numeric(po_totals_df["Invoice Total"], errors="coerce")
                     po_totals_buffer = io.BytesIO()
                     po_totals_df.to_excel(po_totals_buffer, index=False)
                     output_zip.writestr("po_totals.xlsx", po_totals_buffer.getvalue())
+
 
             last_invoice_number = base_invoice_num + file_index  # Add this line here
             st.success("Processing complete.")
