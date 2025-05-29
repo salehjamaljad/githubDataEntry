@@ -11,7 +11,7 @@ def rabbitInvoices():
     
     df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
     default_base_invoice_num = int(df_invoice_number.iat[0, 0])
-    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", min_value=default_base_invoice_num, step=1)
+    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", value=default_base_invoice_num, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing Excel files", type="zip")
 
     if uploaded_zip:
@@ -66,14 +66,17 @@ def rabbitInvoices():
 
                                 # Optional image insertion - if you want to keep it, otherwise comment out
                                 try:
-                                    invoice_ws.insert_image("A1", "Picture1.png", {'x_scale': 0.5, 'y_scale': 0.5})
+                                    invoice_ws.insert_image("A1", "Picture1.png", {'x_scale': 1.5, 'y_scale': 1})
                                 except:
                                     pass  # continue silently if no image
 
                                 # Company info
                                 invoice_ws.write("A5", "شركه خضار للتجارة والتسويق", meta_format)
-                                invoice_ws.write("C1", "شركه خضار للتجارة والتسويق", meta_format)
-                                invoice_ws.write("C2", "Khodar for Trading & Marketing", meta_format)
+                                centered_meta_format = workbook.add_format({'bold': True, 'border': 2, 'align': 'center', 'valign': 'vcenter'})
+
+                                invoice_ws.merge_range("B1:C1", "شركه خضار للتجارة والتسويق", centered_meta_format)
+                                invoice_ws.merge_range("B2:C2", "Khodar for Trading & Marketing", centered_meta_format)
+
 
                                 # Invoice metadata labels
                                 invoice_ws.write("F1", "فاتورة مبيعات", meta_format)
@@ -96,28 +99,36 @@ def rabbitInvoices():
                                 invoice_ws.write("C11", "Unit Cost", headers_format)
                                 invoice_ws.write("D11", "quantity", headers_format)
                                 invoice_ws.write("E11", "total", headers_format)
-
+                                # Define formats
+                                border_format = workbook.add_format({'border': 1})
+                                barcode_format = workbook.add_format({'num_format': '0', 'border': 1})
+                                qty_total_format = workbook.add_format({'border': 1})  # Full border for quantity and total
                                 # Write rows, empty qty and total
                                 for idx, row in df.iterrows():
                                     row_num = 11 + idx
                                     barcode_value = row.get("Barcode", "")
                                     if pd.isna(barcode_value) or barcode_value == '':
-                                        invoice_ws.write_blank(row_num, 0, "", workbook.add_format({'border': 1}))
+                                        invoice_ws.write_blank(row_num, 0, "", border_format)
                                     else:
                                         try:
                                             barcode_int = int(barcode_value)
-                                            barcode_format = workbook.add_format({'num_format': '0', 'border': 1})
                                             invoice_ws.write_number(row_num, 0, barcode_int, barcode_format)
                                         except Exception:
-                                            invoice_ws.write_string(row_num, 0, str(barcode_value), workbook.add_format({'border': 1}))
+                                            invoice_ws.write_string(row_num, 0, str(barcode_value), border_format)
 
-                                    invoice_ws.write(row_num, 1, row.get("Arabic Product Name", ""))
-                                    invoice_ws.write(row_num, 2, row.get("Unit Cost", ""))
-                                    invoice_ws.write(row_num, 3, "")  # quantity empty
-                                    invoice_ws.write(row_num, 4, "")  # total empty
+                                    invoice_ws.write(row_num, 1, row.get("Arabic Product Name", ""), border_format)
+                                    invoice_ws.write(row_num, 2, row.get("Unit Cost", ""), border_format)
+                                    invoice_ws.write(row_num, 3, "", qty_total_format)  # quantity with full border
+                                    invoice_ws.write(row_num, 4, "", qty_total_format)  # total with full border
 
                                 last_row = 11 + len(df)
-
+                                # Column width adjustments
+                                invoice_ws.set_column("A:A", 25)  # ~235px
+                                invoice_ws.set_column("B:B", 30)  # ~275px
+                                invoice_ws.set_column("C:C", 15)  # ~145px
+                                invoice_ws.set_column("D:D", 15)  # ~145px
+                                invoice_ws.set_column("E:E", 27)  # ~250px
+                                invoice_ws.set_column("F:F", 11)  # ~105px
                                 invoice_ws.merge_range(last_row, 0, last_row, 3, "Subtotal", bold_merge)
                                 invoice_ws.write_blank(last_row, 4, "", bold_border_right)
 
