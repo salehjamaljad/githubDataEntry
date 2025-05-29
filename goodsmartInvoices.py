@@ -306,12 +306,13 @@ def goodsmartInvoices():
 
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             # Sheet 1: Raw orders with category
-            df.to_excel(writer, index=False, sheet_name="Orders")
+            df.to_excel(writer, index=False, sheet_name="Orders", startrow=0)
 
-
-            workbook = writer.book
+            # Get worksheet
             worksheet1 = writer.sheets["Orders"]
+            workbook = writer.book
 
+            # Set column formats
             number_format = workbook.add_format({'num_format': '0'})  # No scientific notation
             worksheet1.set_column("A:A", 20, number_format)      # Barcode
             worksheet1.set_column("B:B", 30)                     # Product Name
@@ -319,6 +320,19 @@ def goodsmartInvoices():
             worksheet1.set_column("D:D", 10)                     # Qty
             worksheet1.set_column("E:E", 20)                     # Total Cost
             worksheet1.set_column("F:F", 15)                     # Category
+
+            # Add Grand Total row
+            last_row_index = len(df) + 1  # +1 because of header row
+            bold_border = workbook.add_format({'bold': True, 'top': 2})
+
+            # Write label in B
+            worksheet1.write(last_row_index, 1, "Grand Total", bold_border)
+
+            # Write SUM formulas in pp, Qty, Total Cost columns
+            worksheet1.write_formula(last_row_index, 2, f"=SUM(C2:C{last_row_index})", bold_border)  # pp
+            worksheet1.write_formula(last_row_index, 3, f"=SUM(D2:D{last_row_index})", bold_border)  # Qty
+            worksheet1.write_formula(last_row_index, 4, f"=SUM(E2:E{last_row_index})", bold_border)  # Total Cost
+
 
 
             # Sheet 2: Invoice
