@@ -482,7 +482,9 @@ def pdfToExcel():
     
     df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
     default_base_invoice_num = int(df_invoice_number.iat[0, 0])
-    base_invoice_num = st.number_input("Enter base invoice number", min_value=default_base_invoice_num, step=1)
+    if "base_invoice_num" not in st.session_state:
+        st.session_state.base_invoice_num = default_base_invoice_num
+    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", value=st.session_state.base_invoice_num, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing PDFs", type=["zip"])
 
     if uploaded_zip is not None:
@@ -996,17 +998,18 @@ def pdfToExcel():
 
                 st.success("Processing complete!")
                 st.info(f"last invoice number generated: {offset + base_invoice_num-1}")
-                if base_invoice_num == default_base_invoice_num:
-                    df_invoice_number.iat[0, 0] = offset + int(df_invoice_number.iat[0, 0])
-                else:
-                    df_invoice_number.iat[0, 0] = default_base_invoice_num
-                conn.update(worksheet="Saved", data=df_invoice_number)
-                st.download_button(
+                
+                if st.download_button(
                     label="Download All Files as ZIP",
                     data=output_zip_buffer.getvalue(),
                     file_name=f"talabat_documents_{selected_date}.zip",
                     mime="application/zip"
-                )
+                ):
+                    if base_invoice_num == default_base_invoice_num:
+                        df_invoice_number.iat[0, 0] = offset + int(df_invoice_number.iat[0, 0])
+                    else:
+                        df_invoice_number.iat[0, 0] = default_base_invoice_num
+                    conn.update(worksheet="Saved", data=df_invoice_number)
 
 if __name__ == "__main__":
     pdfToExcel()
