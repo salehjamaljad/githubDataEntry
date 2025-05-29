@@ -277,8 +277,8 @@ def breadfastInvoices():
         conn = st.connection("gsheets", type=GSheetsConnection)
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         
-        invoice_num_loran = int(df_invoice_number.iat[0, 0])
-        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", min_value=invoice_num_loran, step=1)
+        default_invoice_num_loran = int(df_invoice_number.iat[0, 0])
+        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", min_value=default_invoice_num_loran, step=1)
         invoice_num_smouha = invoice_num_loran + 1
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
@@ -604,6 +604,10 @@ def breadfastInvoices():
                 st.write(f"PO سموحة: {po_smouha}")
                 st.info(f"اخر رقم فاتورة هو:{invoice_num_smouha}")
                 df_invoice_number.iat[0, 0] = invoice_num_smouha + 1
+                if invoice_num_loran == default_invoice_num_loran:
+                    df_invoice_number.iat[0, 0] = invoice_num_smouha + 1
+                else:
+                    df_invoice_number.iat[0, 0] = default_invoice_num_loran
                 conn.update(worksheet="Saved", data=df_invoice_number)
                 st.download_button(
                     label="Download ZIP with Both Branch Orders",
@@ -616,8 +620,8 @@ def breadfastInvoices():
         conn = st.connection("gsheets", type=GSheetsConnection)
         
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
-        mansoura_invoice_num = int(df_invoice_number.iat[0, 0])
-        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", min_value=mansoura_invoice_num, step=1)
+        default_mansoura_invoice_num = int(df_invoice_number.iat[0, 0])
+        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", min_value=default_mansoura_invoice_num, step=1)
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
 
@@ -800,7 +804,11 @@ def breadfastInvoices():
 
             zip_buffer.seek(0)
             st.info(f"اخر رقم فاتورة هو:{mansoura_invoice_num}")
-            df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1 
+            df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1
+            if mansoura_invoice_num == default_mansoura_invoice_num:
+                df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1
+            else:
+                df_invoice_number.iat[0, 0] = default_mansoura_invoice_num
             conn.update(worksheet="Saved", data=df_invoice_number)
             st.download_button(
                 label="Download ZIP - Mansoura Invoice",
