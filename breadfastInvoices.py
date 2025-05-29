@@ -276,8 +276,9 @@ def breadfastInvoices():
     if action == "الاسكندرية": 
         conn = st.connection("gsheets", type=GSheetsConnection)
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
-        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", min_value=1, step=1)
+        
         invoice_num_loran = int(df_invoice_number.iat[0, 0])
+        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", min_value=invoice_num_loran, step=1)
         invoice_num_smouha = invoice_num_loran + 1
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
@@ -613,10 +614,10 @@ def breadfastInvoices():
     elif action == 'المنصورة':
         # --- UI Input ---
         conn = st.connection("gsheets", type=GSheetsConnection)
-        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", min_value=1, step=1)
+        
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         mansoura_invoice_num = int(df_invoice_number.iat[0, 0])
-        
+        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", min_value=mansoura_invoice_num, step=1)
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
 
