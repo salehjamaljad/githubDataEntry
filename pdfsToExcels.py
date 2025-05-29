@@ -6,7 +6,7 @@ import zipfile
 import tempfile
 from io import BytesIO
 from fuzzywuzzy import process
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import io
 from docx import Document
@@ -27,6 +27,7 @@ from openpyxl.styles import Font, Alignment, Border, PatternFill, Side
 from openpyxl.utils import get_column_letter
 import os
 import re
+from streamlit_gsheets import GSheetsConnection
 
 def pdfToExcel():
     # Define your standard column names
@@ -45,6 +46,7 @@ def pdfToExcel():
         "Amt.\nIncl.\nVAT"
     ]
     standardized_columns = [col.replace("\n", "_") for col in columns]
+    conn = st.connection("gsheets", type=GSheetsConnection)
     translation_dict = {926242: 'ملوخية جاهزة500جم',
         924881: 'فاصوليا مقطعة فريش 350 جرام',
         924880: 'كابوتشا مقطع 350 جم',
@@ -472,8 +474,14 @@ def pdfToExcel():
         return df
 
     st.title("Purhcase Orders To Invoices")
-    selected_date = st.date_input('enter the delivery date')
+    # Calculate the day after tomorrow
+    default_date = datetime.today() + timedelta(days=2)
+
+    # Use it as the default value
+    selected_date = st.date_input('Enter the delivery date', value=default_date)
     base_invoice_num = st.number_input("Enter base invoice number", min_value=0, step=1)
+    df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
+    base_invoice_num = int(df_invoice_number.iat[0, 0])
     uploaded_zip = st.file_uploader("Upload a ZIP file containing PDFs", type=["zip"])
 
     if uploaded_zip is not None:
@@ -987,6 +995,8 @@ def pdfToExcel():
 
                 st.success("Processing complete!")
                 st.info(f"last invoice number generated: {offset + base_invoice_num-1}")
+                df_invoice_number.iat[0, 0] = offset + int(df_invoice_number.iat[0, 0])
+                conn.update(worksheet="Saved", data=df_invoice_number)
                 st.download_button(
                     label="Download All Files as ZIP",
                     data=output_zip_buffer.getvalue(),
