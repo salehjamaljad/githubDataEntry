@@ -8,9 +8,10 @@ from streamlit_gsheets import GSheetsConnection
 def rabbitInvoices():
     st.title("Rabbit & Khateer Processor")
     conn = st.connection("gsheets", type=GSheetsConnection)    
-    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", min_value=1, step=1)
+    
     df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
-    base_invoice_num = int(df_invoice_number.iat[0, 0])
+    default_base_invoice_num = int(df_invoice_number.iat[0, 0])
+    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", min_value=default_base_invoice_num, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing Excel files", type="zip")
 
     if uploaded_zip:
@@ -197,7 +198,10 @@ def rabbitInvoices():
             last_invoice_number = base_invoice_num + file_index  # Add this line here
             st.success("Processing complete.")
             st.info(f"آخر رقم فاتورة تم استخدامه هو: {last_invoice_number}")
-            df_invoice_number.iat[0, 0] = last_invoice_number
+            if base_invoice_num == default_base_invoice_num:
+                df_invoice_number.iat[0, 0] = last_invoice_number
+            else:
+                df_invoice_number.iat[0, 0] = default_base_invoice_num
             conn.update(worksheet="Saved", data=df_invoice_number)
             st.download_button(
                 label="Download ZIP with Cleaned and Pivoted Files",
