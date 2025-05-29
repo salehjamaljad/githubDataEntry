@@ -420,11 +420,12 @@ def goodsmartInvoices():
 
     # Use it as the default value
     delivery_date = st.date_input('Enter the delivery date', value=default_date)
-    invoice_number = st.number_input("Invoice Number", min_value=1, step=1)
     conn = st.connection("gsheets", type=GSheetsConnection)
     df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
     default_invoice_number = int(df_invoice_number.iat[0, 0])
-    invoice_number = st.number_input("Invoice Number", min_value=default_invoice_number, step=1)
+    if "invoice_number" not in st.session_state:
+        st.session_state.invoice_number = default_invoice_number
+    invoice_number = st.number_input("Invoice Number", value=st.session_state.invoice_number, step=1)
     po_value = st.text_input("Purchase Order Number")
     uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
@@ -458,17 +459,18 @@ def goodsmartInvoices():
         # Generate Excel with invoice sheet
         excel_file = create_excel_file(df, int(invoice_number), delivery_date, po_value)
         st.info(f"last invoice number: {invoice_number}")
-        if invoice_number == default_invoice_number:
-            df_invoice_number.iat[0, 0] = invoice_number+1
-        else:
-            df_invoice_number.iat[0, 0] = default_invoice_number
-        conn.update(worksheet="Saved", data=df_invoice_number)
+        
         # Provide download button
-        st.download_button(
+        if st.download_button(
             label="Download Invoice Excel",
             data=excel_file,
             file_name=f"GoodsMart_Delivery_{delivery_date}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+        ):
+            if invoice_number == default_invoice_number:
+                df_invoice_number.iat[0, 0] = invoice_number+1
+            else:
+                df_invoice_number.iat[0, 0] = default_invoice_number
+            conn.update(worksheet="Saved", data=df_invoice_number)
 if __name__ == "__main__":
     goodsmartInvoices()
