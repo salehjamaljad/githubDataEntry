@@ -458,17 +458,19 @@ def breadfastInvoices():
                     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                         # --- Sheet 1: Orders as-is ---
                         df.to_excel(writer, index=False, sheet_name="Orders")
-
                         workbook = writer.book
-                        worksheet1 = writer.sheets["Orders"]
-                        number_format = workbook.add_format({'num_format': '0'})
-                        quantity_format = workbook.add_format({'num_format': '0.00'})
+                        worksheet = writer.sheets["Orders"]
+                        qty_col = df.columns.get_loc("Quantity")  # zero-based index
+                        pp_col = df.columns.get_loc("pp")
 
-                        worksheet1.set_column("A:A", 10)
-                        worksheet1.set_column("B:B", 20, number_format)
-                        worksheet1.set_column("C:C", 10, quantity_format)
-                        worksheet1.set_column("D:D", 50)
-                        worksheet1.set_column("E:E", 15)
+                        last_row = len(df) + 1  # Excel rows are 1-based, header is row 1
+
+                        # Write "Grand Total" label
+                        worksheet.write(last_row, 0, "Grand Total", workbook.add_format({'bold': True, 'border': 1}))
+
+                        # Write sum formulas for Qty and PP columns
+                        worksheet.write_formula(last_row, qty_col, f"=SUM({chr(65 + qty_col)}2:{chr(65 + qty_col)}{last_row})", workbook.add_format({'bold': True, 'border': 1}))
+                        worksheet.write_formula(last_row, pp_col, f"=SUM({chr(65 + pp_col)}2:{chr(65 + pp_col)}{last_row})", workbook.add_format({'bold': True, 'border': 1}))
 
                         # --- Sheet 2: Invoice Template ---
                         invoice_ws = workbook.add_worksheet("فاتورة")
@@ -735,6 +737,19 @@ def breadfastInvoices():
                 with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                     df.to_excel(writer, index=False, sheet_name="Orders")
                     workbook = writer.book
+                    worksheet = writer.sheets["Orders"]
+                    qty_col = df.columns.get_loc("Quantity")  # zero-based index
+                    pp_col = df.columns.get_loc("pp")
+
+                    last_row = len(df) + 1  # Excel rows are 1-based, header is row 1
+
+                    # Write "Grand Total" label
+                    worksheet.write(last_row, 0, "Grand Total", workbook.add_format({'bold': True, 'border': 1}))
+
+                    # Write sum formulas for Qty and PP columns
+                    worksheet.write_formula(last_row, qty_col, f"=SUM({chr(65 + qty_col)}2:{chr(65 + qty_col)}{last_row})", workbook.add_format({'bold': True, 'border': 1}))
+                    worksheet.write_formula(last_row, pp_col, f"=SUM({chr(65 + pp_col)}2:{chr(65 + pp_col)}{last_row})", workbook.add_format({'bold': True, 'border': 1}))
+                    
 
                     invoice_ws = workbook.add_worksheet("فاتورة")
 
