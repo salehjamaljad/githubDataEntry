@@ -980,21 +980,92 @@ def pdfToExcel():
                 consolidated_wb.save(invoices_buffer)
                 invoices_buffer.seek(0)
 
+                # Collect totals for PO summary
+                po_summary = []
 
+                # Names of generated buffers to exclude from scanning
+                excluded_files = {
+                    f"مجمع_طلبات_اسكندرية_{selected_date}.xlsx",
+                    f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx",
+                    f"مجمع_طلبات_القاهرة_{selected_date}.xlsx",
+                    "فواتير.xlsx"
+                }
+
+                for filename in os.listdir(output_dir):
+                    if filename in excluded_files or not filename.endswith(".xlsx"):
+                        continue
+
+                    file_path = os.path.join(output_dir, filename)
+                    wb = load_workbook(file_path, data_only=True)
+
+                    if "Sheet1" not in wb.sheetnames:
+                        continue
+
+                    ws = wb["Sheet1"]
+                    
+                    h1_text = ws["H1"].value
+
+                    # Find the "Total" column in the header row
+                    total_col_letter = None
+                    for cell in ws[1]:
+                        if cell.value and str(cell.value).strip().lower() == "total":
+                            total_col_letter = get_column_letter(cell.column)
+                            break
+
+                    if total_col_letter is None:
+                        continue
+
+                    total_sum = 0
+                    for row in ws.iter_rows(min_row=2):  # Skip header
+                        val = row[cell.column - 1].value
+                        if isinstance(val, (int, float)):
+                            total_sum += val
+
+                    po_summary.append((filename.split("_")[0], h1_text, total_sum))
+
+                # Create po_totals.xlsx in memory
+                po_totals_wb = Workbook()
+                po_ws = po_totals_wb.active
+                po_ws.title = "Summary"
+                po_ws.append(["branch", "po", "Total of the po"])
+
+                for item in po_summary:
+                    po_ws.append(item)
+
+                po_totals_buffer = BytesIO()
+                po_totals_wb.save(po_totals_buffer)
+                po_totals_buffer.seek(0)
                 # After all Excel files have been updated, create the ZIP file with the updated Excel files
                 output_zip_buffer = BytesIO()
                 with zipfile.ZipFile(output_zip_buffer, "w") as zipf:
-                    for excel_file in os.listdir(output_dir):
-                        excel_path = os.path.join(output_dir, excel_file)
-                        zipf.write(excel_path, arcname=excel_file)
 
+                    # Create inner zip buffer
+                    inner_zip_buffer = BytesIO()
+                    with zipfile.ZipFile(inner_zip_buffer, "w") as inner_zip:
+                        for excel_file in os.listdir(output_dir):
+                            if excel_file not in excluded_files and excel_file.endswith(".xlsx"):
+                                excel_path = os.path.join(output_dir, excel_file)
+                                inner_zip.write(excel_path, arcname=excel_file)
+
+                    inner_zip_buffer.seek(0)
+                    zipf.writestr(f"ملفات الفروع_{selected_date}.zip", inner_zip_buffer.getvalue())
+
+                    # Add the excluded files to the main ZIP
+                    zipf.writestr(f"po_totals_{selected_date}.xlsx", po_totals_buffer.getvalue())
                     zipf.writestr(f"مجمع_طلبات_اسكندرية_{selected_date}.xlsx", alex_buffer.getvalue())
                     zipf.writestr(f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx", ready_buffer.getvalue())
                     zipf.writestr(f"مجمع_طلبات_القاهرة_{selected_date}.xlsx", cairo_buffer.getvalue())
-                    zipf.writestr(f"فواتير.xlsx", invoices_buffer.getvalue())
-
+                    zipf.writestr("فواتير.xlsx", invoices_buffer.getvalue())
 
                 output_zip_buffer.seek(0)
+                excluded_files = {
+                    f"po_totals_{selected_date}.xlsx",
+                    f"مجمع_طلبات_اسكندرية_{selected_date}.xlsx",
+                    f"مجمع_طلبات_الخضار_الجاهز_{selected_date}.xlsx",
+                    f"مجمع_طلبات_القاهرة_{selected_date}.xlsx",
+                    "فواتير.xlsx"
+                }
+
 
                 st.success("Processing complete!")
                 st.info(f"last invoice number generated: {offset + base_invoice_num-1}")
