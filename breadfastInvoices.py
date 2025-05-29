@@ -278,7 +278,9 @@ def breadfastInvoices():
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         
         default_invoice_num_loran = int(df_invoice_number.iat[0, 0])
-        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", value=default_invoice_num_loran, step=1)
+        if "invoice_num_loran" not in st.session_state:
+            st.session_state.invoice_num_loran = default_invoice_num_loran
+        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", value=st.session_state.invoice_num_loran, step=1)
         invoice_num_smouha = invoice_num_loran + 1
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
@@ -603,25 +605,29 @@ def breadfastInvoices():
                 st.write(f"PO لوران: {po_loran}")
                 st.write(f"PO سموحة: {po_smouha}")
                 st.info(f"اخر رقم فاتورة هو:{invoice_num_smouha}")
-                df_invoice_number.iat[0, 0] = invoice_num_smouha + 1
-                if invoice_num_loran == default_invoice_num_loran:
-                    df_invoice_number.iat[0, 0] = invoice_num_smouha + 1
-                else:
-                    df_invoice_number.iat[0, 0] = default_invoice_num_loran
-                conn.update(worksheet="Saved", data=df_invoice_number)
-                st.download_button(
-                    label="Download ZIP with Both Branch Orders",
-                    data=zip_buffer.getvalue(),
-                    file_name=f"breadfast_alex_{delivery_date}.zip",
-                    mime="application/zip"
-                )
+
+                if st.download_button(
+                label="Download ZIP - alexandria Invoice",
+                data=zip_buffer.getvalue(),
+                file_name=f"breadfast_alex_{delivery_date}.zip",
+                mime="application/zip"
+                ):
+                    # Set the next invoice number based on current state
+                    if invoice_num_loran == default_invoice_num_loran:
+                        df_invoice_number.iat[0, 0] = invoice_num_smouha + 1
+                    else:
+                        df_invoice_number.iat[0, 0] = default_invoice_num_loran
+
+                    conn.update(worksheet="Saved", data=df_invoice_number)
     elif action == 'المنصورة':
         # --- UI Input ---
         conn = st.connection("gsheets", type=GSheetsConnection)
         
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         default_mansoura_invoice_num = int(df_invoice_number.iat[0, 0])
-        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", value=default_mansoura_invoice_num, step=1)
+        if "mansoura_invoice_num" not in st.session_state:
+            st.session_state.mansoura_invoice_num = default_mansoura_invoice_num
+        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", value=st.session_state.mansoura_invoice_num, step=1)
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
 
@@ -803,18 +809,22 @@ def breadfastInvoices():
                 zip_file.writestr("فاتورة المنصورة.xlsx", invoice_excel.getvalue())
 
             zip_buffer.seek(0)
-            st.info(f"اخر رقم فاتورة هو:{mansoura_invoice_num}")
-            df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1
-            if mansoura_invoice_num == default_mansoura_invoice_num:
-                df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1
-            else:
-                df_invoice_number.iat[0, 0] = default_mansoura_invoice_num
-            conn.update(worksheet="Saved", data=df_invoice_number)
-            st.download_button(
+            st.info(f"اخر رقم فاتورة هو: {mansoura_invoice_num}")
+
+            # This part will run only when the user presses the download button
+            if st.download_button(
                 label="Download ZIP - Mansoura Invoice",
                 data=zip_buffer.getvalue(),
                 file_name=f"mansoura_invoice_files_{delivery_date}.zip",
                 mime="application/zip"
-            )
+            ):
+                # Set the next invoice number based on current state
+                if mansoura_invoice_num == default_mansoura_invoice_num:
+                    df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1
+                else:
+                    df_invoice_number.iat[0, 0] = default_mansoura_invoice_num
+
+                conn.update(worksheet="Saved", data=df_invoice_number)
+
 if __name__ == "__main__":
     breadfastInvoices()
