@@ -11,7 +11,9 @@ def rabbitInvoices():
     
     df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
     default_base_invoice_num = int(df_invoice_number.iat[0, 0])
-    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", value=default_base_invoice_num, step=1)
+    if "base_invoice_num" not in st.session_state:
+        st.session_state.base_invoice_num = default_base_invoice_num
+    base_invoice_num = st.number_input("رقم الفاتورة الأساسي", value=st.session_state.base_invoice_num, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing Excel files", type="zip")
 
     if uploaded_zip:
@@ -209,16 +211,16 @@ def rabbitInvoices():
             last_invoice_number = base_invoice_num + file_index  # Add this line here
             st.success("Processing complete.")
             st.info(f"آخر رقم فاتورة تم استخدامه هو: {last_invoice_number}")
-            if base_invoice_num == default_base_invoice_num:
-                df_invoice_number.iat[0, 0] = last_invoice_number
-            else:
-                df_invoice_number.iat[0, 0] = default_base_invoice_num
-            conn.update(worksheet="Saved", data=df_invoice_number)
-            st.download_button(
+            if st.download_button(
                 label="Download ZIP with Cleaned and Pivoted Files",
                 data=output_zip_io.getvalue(),
                 file_name=f"rabbit & Khateer Files_{delivery_date}.zip",
                 mime="application/zip"
-            )
+            ):
+                if base_invoice_num == default_base_invoice_num:
+                    df_invoice_number.iat[0, 0] = last_invoice_number
+                else:
+                    df_invoice_number.iat[0, 0] = default_base_invoice_num
+                conn.update(worksheet="Saved", data=df_invoice_number)
 if __name__ == "__main__":
     rabbitInvoices()
