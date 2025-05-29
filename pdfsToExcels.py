@@ -479,9 +479,10 @@ def pdfToExcel():
 
     # Use it as the default value
     selected_date = st.date_input('Enter the delivery date', value=default_date)
-    base_invoice_num = st.number_input("Enter base invoice number", min_value=0, step=1)
+    
     df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
-    base_invoice_num = int(df_invoice_number.iat[0, 0])
+    default_base_invoice_num = int(df_invoice_number.iat[0, 0])
+    base_invoice_num = st.number_input("Enter base invoice number", min_value=default_base_invoice_num, step=1)
     uploaded_zip = st.file_uploader("Upload a ZIP file containing PDFs", type=["zip"])
 
     if uploaded_zip is not None:
@@ -995,7 +996,10 @@ def pdfToExcel():
 
                 st.success("Processing complete!")
                 st.info(f"last invoice number generated: {offset + base_invoice_num-1}")
-                df_invoice_number.iat[0, 0] = offset + int(df_invoice_number.iat[0, 0])
+                if base_invoice_num == default_base_invoice_num:
+                    df_invoice_number.iat[0, 0] = offset + int(df_invoice_number.iat[0, 0])
+                else:
+                    df_invoice_number.iat[0, 0] = default_base_invoice_num
                 conn.update(worksheet="Saved", data=df_invoice_number)
                 st.download_button(
                     label="Download All Files as ZIP",
