@@ -22,7 +22,8 @@ def rabbitInvoices():
             with zipfile.ZipFile(output_zip_io, "w") as output_zip:
                 khateer_data = []
                 khodar_data = []
-
+                po_totals_rows = []
+                
                 for file_index, file_name in enumerate(zip_ref.namelist()):
                     if not file_name.endswith(".xlsx") or file_name.startswith("__MACOSX"):
                         continue
@@ -51,7 +52,13 @@ def rabbitInvoices():
 
                             parts = filter(None, [prefix, branch, delivery_date])
                             output_filename = "_".join(parts) + ".xlsx"
-
+                            base_name = output_filename.rsplit("_", 1)[0]  # removes the date part
+                            if not output_filename.startswith("مجمع"):
+                                po_totals_rows.append({
+                                    "filename": base_name,
+                                    "PO Number": order_number,
+                                    "Invoice Total": invoice_total
+                                })
                             invoice_number = base_invoice_num + file_index  # <<< Here is the new logic
 
                             excel_buffer = io.BytesIO()
@@ -208,6 +215,13 @@ def rabbitInvoices():
                     khodar_buffer = io.BytesIO()
                     khodar_pivot.to_excel(khodar_buffer, index=False)
                     output_zip.writestr("مجمع رابيت.xlsx", khodar_buffer.getvalue())
+                if po_totals_rows:
+                    po_totals_df = pd.DataFrame(po_totals_rows)
+                    po_totals_df["Invoice Total"] = pd.to_numeric(po_totals_df["Invoice Total"], errors="coerce")
+                    po_totals_buffer = io.BytesIO()
+                    po_totals_df.to_excel(po_totals_buffer, index=False)
+                    output_zip.writestr("po_totals.xlsx", po_totals_buffer.getvalue())
+
             last_invoice_number = base_invoice_num + file_index  # Add this line here
             st.success("Processing complete.")
             st.info(f"آخر رقم فاتورة تم استخدامه هو: {last_invoice_number}")
