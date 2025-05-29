@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
-import datetime
-
+from datetime import datetime, timedelta
+from streamlit_gsheets import GSheetsConnection
 def goodsmartInvoices():
     barcode_to_product = {
             "2283957660118": "ملوخية جاهزة500جم",
@@ -415,8 +415,15 @@ def goodsmartInvoices():
 
     # Streamlit UI
     st.title("GoodsMart Invoice Generator")
-    delivery_date = st.date_input("Delivery Date", datetime.date.today())
+    # Calculate the day after tomorrow
+    default_date = datetime.today() + timedelta(days=2)
+
+    # Use it as the default value
+    delivery_date = st.date_input('Enter the delivery date', value=default_date)
     invoice_number = st.number_input("Invoice Number", min_value=1, step=1)
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
+    invoice_number = int(df_invoice_number.iat[0, 0])
     po_value = st.text_input("Purchase Order Number")
     uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
@@ -449,7 +456,9 @@ def goodsmartInvoices():
 
         # Generate Excel with invoice sheet
         excel_file = create_excel_file(df, int(invoice_number), delivery_date, po_value)
-        st.info(invoice_number)
+        st.info(f"last invoice number: {invoice_number}")
+        df_invoice_number.iat[0, 0] = invoice_number+1
+        conn.update(worksheet="Saved", data=df_invoice_number)
         # Provide download button
         st.download_button(
             label="Download Invoice Excel",
