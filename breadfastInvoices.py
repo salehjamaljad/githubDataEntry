@@ -6,6 +6,8 @@ from io import BytesIO
 import zipfile
 import os
 import tempfile
+from streamlit_gsheets import GSheetsConnection
+from datetime import datetime, timedelta
 def breadfastInvoices():
     barcode_to_product = {
         "2283957660118": "ملوخية جاهزة500جم",
@@ -271,10 +273,17 @@ def breadfastInvoices():
             "المنصورة"
         ],
     )
-    if action == "الاسكندرية":
+    if action == "الاسكندرية": 
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         invoice_num_loran = st.number_input("رقم الفاتورة - لوران", min_value=1, step=1)
+        invoice_num_loran = int(df_invoice_number.iat[0, 0])
         invoice_num_smouha = invoice_num_loran + 1
-        delivery_date = st.date_input("تاريخ الاستلام")
+        # Calculate the day after tomorrow
+        default_date = datetime.today() + timedelta(days=1)
+
+        # Use it as the default value
+        delivery_date = st.date_input('Enter the delivery date', value=default_date)
 
         uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
 
@@ -593,6 +602,8 @@ def breadfastInvoices():
                 st.write(f"PO لوران: {po_loran}")
                 st.write(f"PO سموحة: {po_smouha}")
                 st.info(f"اخر رقم فاتورة هو:{invoice_num_smouha}")
+                df_invoice_number.iat[0, 0] = invoice_num_smouha + 1
+                conn.update(worksheet="Saved", data=df_invoice_number)
                 st.download_button(
                     label="Download ZIP with Both Branch Orders",
                     data=zip_buffer.getvalue(),
@@ -601,8 +612,16 @@ def breadfastInvoices():
                 )
     elif action == 'المنصورة':
         # --- UI Input ---
+        conn = st.connection("gsheets", type=GSheetsConnection)
         mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", min_value=1, step=1)
-        delivery_date = st.date_input("تاريخ الاستلام")
+        df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
+        mansoura_invoice_num = int(df_invoice_number.iat[0, 0])
+        
+        # Calculate the day after tomorrow
+        default_date = datetime.today() + timedelta(days=1)
+
+        # Use it as the default value
+        delivery_date = st.date_input('Enter the delivery date', value=default_date)
         uploaded_file = st.file_uploader("Upload Mansoura PDF", type="pdf")
 
         # --- Functions ---
@@ -780,6 +799,8 @@ def breadfastInvoices():
 
             zip_buffer.seek(0)
             st.info(f"اخر رقم فاتورة هو:{mansoura_invoice_num}")
+            df_invoice_number.iat[0, 0] = mansoura_invoice_num + 1 
+            conn.update(worksheet="Saved", data=df_invoice_number)
             st.download_button(
                 label="Download ZIP - Mansoura Invoice",
                 data=zip_buffer.getvalue(),
