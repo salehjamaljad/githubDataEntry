@@ -278,7 +278,7 @@ def breadfastInvoices():
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         
         default_invoice_num_loran = int(df_invoice_number.iat[0, 0])
-        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", min_value=default_invoice_num_loran, step=1)
+        invoice_num_loran = st.number_input("رقم الفاتورة - لوران", value=default_invoice_num_loran, step=1)
         invoice_num_smouha = invoice_num_loran + 1
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
@@ -621,7 +621,7 @@ def breadfastInvoices():
         
         df_invoice_number = conn.read(worksheet="Saved", cell="A1", ttl=5, headers=False)
         default_mansoura_invoice_num = int(df_invoice_number.iat[0, 0])
-        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", min_value=default_mansoura_invoice_num, step=1)
+        mansoura_invoice_num = st.number_input("رقم الفاتورة - المنصورة", value=default_mansoura_invoice_num, step=1)
         # Calculate the day after tomorrow
         default_date = datetime.today() + timedelta(days=1)
 
