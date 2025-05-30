@@ -55,13 +55,15 @@ def rabbitInvoices():
                             parts = filter(None, [prefix, branch, delivery_date])
                             output_filename = "_".join(parts) + ".xlsx"
                             base_name = output_filename.rsplit("_", 1)[0]  # removes the date part
+                            invoice_number = base_invoice_num + file_index  # <<< Here is the new logic
                             if not output_filename.startswith("مجمع"):
                                 po_totals_rows.append({
                                     "filename": base_name,
                                     "PO Number": order_number,
-                                    "Invoice Total": invoice_total
+                                    "Invoice Total": invoice_total,
+                                    "Invoice Number": invoice_number
                                 })
-                            invoice_number = base_invoice_num + file_index  # <<< Here is the new logic
+                            
 
                             excel_buffer = io.BytesIO()
                             with pd.ExcelWriter(excel_buffer, engine="xlsxwriter") as writer:
