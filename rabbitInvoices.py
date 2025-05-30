@@ -71,22 +71,27 @@ def rabbitInvoices():
                             output_filename = "_".join(parts) + ".xlsx"
                             base_name = output_filename.rsplit("_", 1)[0]  # removes the date part
 
-                            # Remove known prefixes
+                            # Keep original base_name for filename
+                            filename_with_prefix = base_name
+
+                            # Strip known prefixes for translation only
+                            clean_base_name = base_name
                             for prefix in ["خطير_", "رابيت_"]:
                                 if base_name.startswith(prefix):
-                                    base_name = base_name[len(prefix):]
+                                    clean_base_name = base_name[len(prefix):]
                                     break
 
-                            invoice_number = base_invoice_num + file_index  # <<< Here is the new logic
+                            invoice_number = base_invoice_num + file_index
 
                             if not output_filename.startswith("مجمع"):
                                 po_totals_rows.append({
-                                    "branch 'en'": branches_translation.get(base_name, base_name),
-                                    "filename": base_name,
+                                    "branch 'en'": branches_translation.get(clean_base_name, clean_base_name),
+                                    "filename": filename_with_prefix,
                                     "PO Number": order_number,
                                     "Invoice Total": invoice_total,
                                     "Invoice Number": invoice_number
                                 })
+
                             
 
                             excel_buffer = io.BytesIO()
