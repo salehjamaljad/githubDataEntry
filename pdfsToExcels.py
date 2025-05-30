@@ -1002,7 +1002,6 @@ def pdfToExcel():
                         continue
 
                     ws = wb["Sheet1"]
-                    
                     h1_text = ws["H1"].value
 
                     # Find the "Total" column in the header row
@@ -1016,18 +1015,26 @@ def pdfToExcel():
                         continue
 
                     total_sum = 0
-                    for row in ws.iter_rows(min_row=2):  # Skip header
+                    for row in ws.iter_rows(min_row=2):
                         val = row[cell.column - 1].value
                         if isinstance(val, (int, float)):
                             total_sum += val
 
-                    po_summary.append((filename.split("_")[0], h1_text, total_sum))
+                    # Get invoice number from second sheet "فاتورة"
+                    invoice_number = None
+                    if "فاتورة" in wb.sheetnames:
+                        invoice_ws = wb["فاتورة"]
+                        invoice_val = invoice_ws["E2"].value
+                        if isinstance(invoice_val, int):
+                            invoice_number = invoice_val
+
+                    po_summary.append((filename.split("_")[0], h1_text, total_sum, invoice_number))
 
                 # Create po_totals.xlsx in memory
                 po_totals_wb = Workbook()
                 po_ws = po_totals_wb.active
                 po_ws.title = "Summary"
-                po_ws.append(["branch", "po", "Total of the po"])
+                po_ws.append(["branch", "po", "Total of the po", "invoice_number"])
 
                 for item in po_summary:
                     po_ws.append(item)
