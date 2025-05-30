@@ -6,6 +6,21 @@ from datetime import datetime
 import xlsxwriter
 from streamlit_gsheets import GSheetsConnection
 def rabbitInvoices():
+    branches_translation = {
+    "ميفيدا": "Mevida",
+    "فرع المعادي": "MAADI",
+    "فرع الدقي": "MOHANDSEEN",
+    "فرع الرحاب": "Rehab",
+    "فرع التجمع": "TGAMOE",
+    "فرع مصر الجديدة": "MASR GEDIDA",
+    "فرع مدينة نصر": "Nasr City",
+    "اكتوبر٢": "OCTOBER",
+    "فرع دريم": "Dream",
+    "فرع زايد": "ZAYED",
+    "فرع سوديك": "Sodic",
+    "مدينتي": "Madinaty"
+    }
+
     st.title("Rabbit & Khateer Processor")
     conn = st.connection("gsheets", type=GSheetsConnection)    
     
@@ -55,9 +70,18 @@ def rabbitInvoices():
                             parts = filter(None, [prefix, branch, delivery_date])
                             output_filename = "_".join(parts) + ".xlsx"
                             base_name = output_filename.rsplit("_", 1)[0]  # removes the date part
+
+                            # Remove known prefixes
+                            for prefix in ["خطير_", "رابيت_"]:
+                                if base_name.startswith(prefix):
+                                    base_name = base_name[len(prefix):]
+                                    break
+
                             invoice_number = base_invoice_num + file_index  # <<< Here is the new logic
+
                             if not output_filename.startswith("مجمع"):
                                 po_totals_rows.append({
+                                    "branch 'en'": branches_translation.get(base_name, base_name),
                                     "filename": base_name,
                                     "PO Number": order_number,
                                     "Invoice Total": invoice_total,
