@@ -354,6 +354,60 @@ def pdfToExcel():
         "EG_Shrouk_ Mgawra (2)_DS_51": "الشروق 2",
         "EG_Sheikh zayed (2)_DS_53": "زايد 2"
     }
+    branches_translation = {
+    "سيدي بشر": "Sidibeshr",
+    "الابراهيميه": "ibrahimia",
+    "وينجت": "Wenget",
+    "المعادي لاسلكي": "Laselkey Maadi",
+    "حدائق الاهرام": "Haram Hadayek",
+    "الظاهر": "El Daher",
+    "المقطم": "MOKATAM",
+    "السيدة زينب": "El Sayeda Zeinab",
+    "حلوان": "Helwan",
+    "المنيل": "El Manel",
+    "المقطم 2 هضبة": "El-Hadaba El-Wosta",
+    "شبرا": "Shobra",
+    "الدقي": "Dokki",
+    "زهراء المعادي": "zahra Maadi",
+    "ميدان لبنان": "Midan Lubnan",
+    "العجوزة": "Agouza",
+    "كورنيش المعادي": "kornash Maadi",
+    "زهراء المعادي - 2": "zahra Maadi2",
+    "اسيوط": "Asyut",
+    "هيليوبليس": "Heliopolis",
+    "هرم ترسا": "Haram Trsa",
+    "اكتوبر": "OCTOBER",
+    "سيتي ستارز": "City Stars",
+    "فرست مول": "First Mall",
+    "فونت مول": "Fount Mall",
+    "حدائق القبه": "Hadaeq Al Qubbah",
+    "الشيخ زايد": "ZAYED",
+    "الرحاب": "Rehab",
+    "عين شمس": "AinShams",
+    "التجمع الاول": "TAGMOE AWAL",
+    "مدينة نصر": "Nasr City",
+    "فيصل": "Fesal",
+    "حدائق اكتوبر": "Hadayek October",
+    "الاسماعيليه": "ismailia",
+    "مدينتي كرافت": "Madinaty Craft",
+    "مدينتي": "Madinaty",
+    "المنصورة جمهورية": "Mansoura Gomhoria",
+    "المنصورة": "Mansoura",
+    "الحي العاشر": "Nasr City Hay asher",
+    "العبور": "Obour",
+    "برايت مول": "Bright Mall",
+    "بالم هيلز": "Palm Hills",
+    "بورسعيد": "portsaid",
+    "الرحاب تشيل اوت": "Rehab Chillout",
+    "الشروق": "Shrouk",
+    "التجمع محكمه": "TAGMOE MAHKMA",
+    "التجمع جولدن سكوير": "Golden square",
+    "طنطا": "Tanta",
+    "الزقازيق": "Zagazig",
+    "هيليوبليس شيراتون": "heliopolis sheraton",
+    "الشروق 2": "Shrouk 2",
+    "زايد 2": "Zayed 2"
+}
 
     # Special EG_ codes that need to capture the next word too
     special_codes = {
@@ -1006,9 +1060,11 @@ def pdfToExcel():
 
                     # Find the "Total" column in the header row
                     total_col_letter = None
+                    total_col_idx = None  # will store the column index (1-based)
                     for cell in ws[1]:
                         if cell.value and str(cell.value).strip().lower() == "total":
                             total_col_letter = get_column_letter(cell.column)
+                            total_col_idx = cell.column
                             break
 
                     if total_col_letter is None:
@@ -1016,7 +1072,7 @@ def pdfToExcel():
 
                     total_sum = 0
                     for row in ws.iter_rows(min_row=2):
-                        val = row[cell.column - 1].value
+                        val = row[total_col_idx - 1].value
                         if isinstance(val, (int, float)):
                             total_sum += val
 
@@ -1028,13 +1084,22 @@ def pdfToExcel():
                         if isinstance(invoice_val, int):
                             invoice_number = invoice_val
 
-                    po_summary.append((filename.split("_")[0], h1_text, total_sum, invoice_number))
+                    # Extract Arabic branch from filename (assuming it's the part before "_")
+                    arabic_branch = filename.split("_")[0]
+
+                    # Get English branch name using dict, fallback to arabic_branch if not found
+                    english_branch = branches_translation.get(arabic_branch, arabic_branch)
+
+                    po_summary.append((english_branch, arabic_branch,  h1_text, total_sum, invoice_number))
+
 
                 # Create po_totals.xlsx in memory
                 po_totals_wb = Workbook()
                 po_ws = po_totals_wb.active
                 po_ws.title = "Summary"
-                po_ws.append(["branch", "po", "Total of the po", "invoice_number"])
+
+                # Add header with new "branch name (en)" column at the beginning
+                po_ws.append(["branch (en)", "branch (ar)", "po", "Total of the po", "invoice_number"])
 
                 for item in po_summary:
                     po_ws.append(item)
