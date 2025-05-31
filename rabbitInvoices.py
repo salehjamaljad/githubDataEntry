@@ -60,13 +60,13 @@ def rabbitInvoices():
                                 df2.iloc[1, 6], errors="coerce"
                             ).strftime("%Y-%m-%d")
 
-                            name_lc = file_name.lower()
+                            name_lc = str(df.iat[0, 3]) if df.shape[0] > 0 and df.shape[1] > 3 else ""
                             prefix = ""
-                            if "khateer" in name_lc:
+                            if "khateer" in name_lc.lower():
                                 prefix = "خطير"
-                            elif "khodar" in name_lc:
+                            else:
                                 prefix = "رابيت"
-
+                            
                             parts = filter(None, [prefix, branch, delivery_date])
                             output_filename = "_".join(parts) + ".xlsx"
                             base_name = output_filename.rsplit("_", 1)[0]  # removes the date part
@@ -202,9 +202,9 @@ def rabbitInvoices():
                                 pivot_df = df[pivot_cols].copy()
                                 pivot_df.rename(columns={"Total PC": branch}, inplace=True)
 
-                                if "khateer" in name_lc:
+                                if "khateer" in name_lc.lower():
                                     khateer_data.append(pivot_df)
-                                elif "khodar" in name_lc:
+                                else:
                                     khodar_data.append(pivot_df)
 
                         except Exception as e:
