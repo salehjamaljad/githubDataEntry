@@ -272,7 +272,7 @@ def rabbitInvoices():
                 mime="application/zip"
             ):
                 if base_invoice_num == default_base_invoice_num:
-                    df_invoice_number.iat[0, 0] = last_invoice_number
+                    df_invoice_number.iat[0, 0] = last_invoice_number+1
                 else:
                     df_invoice_number.iat[0, 0] = default_base_invoice_num
                 conn.update(worksheet="Saved", data=df_invoice_number)
