@@ -119,8 +119,12 @@ barcode_to_product = {
             "2283957660067": "يوسفي كريستينا 1كجم",
             "2283957900014": "شمام شهد 1ك معبأ",
             "": "باذنجان للحشو 350جم",
-            "2283958160068": "تفاح مشكل 1كجم"
+            "2283958160068": "تفاح مشكل 1كجم",
+            "2283957560010": "خوخ سكري 1 كجم",
+            "": "ليمون اضاليا 500 جرام"
         }
+
+
 
 
 categories_dict = {
@@ -140,6 +144,9 @@ categories_dict = {
     "كزبرة معبأ",
     "ملوخية جاهزة500جم",
     "كرات 250 جرام",
+    "اسباراجوس 250 جرام",
+    "نعناع 100 جرام",
+    "نعناع 50 جرام"
 ],
 "جاهز": [
     "باذنجان للحشو 350جم",
@@ -166,6 +173,9 @@ categories_dict = {
     "ملوخية جاهزة350جم",
     "ميكس كرنب سلطة مقطع فريش 350 جرام",
     "بامية جاهزة 350 جم",
+    "خضار سوتيه شوي 350 جرام",
+    "بطاطس ودجز 350 جرام",
+    "بطاطا حلوة حلقات 350 جرام",
 ],
 "خضار": [
     "باذنجان عروس اسود معبأ 500 جرام",
@@ -191,6 +201,7 @@ categories_dict = {
     "بسلة 500 جم",
     "فاصوليا خضراء 500جم",
     "فلفل حار احمر 250 جرام",
+    "ليمون اضاليا 500 جرام"
 ],
 "فاكهه": [
     "ابوفروة 250جم",
@@ -252,6 +263,9 @@ categories_dict = {
     "نكتارين مستورد 500 جم",
     "يوسفي كريستينا 1كجم",
     "يوسفي كلمنتينا 1كجم",
+    "مانجو تيمور 1 ك",
+    "مانجو سكري 1 ك",
+    "مانجو نعومي 1 ك"
 ]
 }
 
@@ -377,8 +391,15 @@ translation_dict = {926242: 'ملوخية جاهزة500جم',
         924863: 'يوسفي كريستينا 1كجم',
         912835: 'شمام شهد 1ك معبأ',
         912845: 'برقوق احمر محلي 1ك', 
-        912842: 'عنب فليم احمر 1ك'}
-
+        912842: 'عنب فليم احمر 1ك',
+        933022: "اسباراجوس 250 جرام",
+        933021: "خضار سوتيه شوي 350 جرام",
+        933020: "مانجو سكري 1 ك",
+        933023: "مانجو نعومي 1 ك",
+        933018: "بطاطس ودجز 350 جرام",
+        933019: "بطاطا حلوة حلقات 350 جرام",
+        933024: "مانجو تيمور 1 ك",
+        933017: "نعناع 100 جرام"}
 
 columns = [
         "No.", 
@@ -427,6 +448,7 @@ branches_translation_tlbt = {
     "التجمع الاول": "TAGMOE AWAL",
     "مدينة نصر": "Nasr City",
     "فيصل": "Fesal",
+    "فيصل 2 مريوطية": "Fesal 2",
     "حدائق اكتوبر": "Hadayek October",
     "الاسماعيليه": "ismailia",
     "مدينتي كرافت": "Madinaty Craft",
@@ -446,7 +468,9 @@ branches_translation_tlbt = {
     "الزقازيق": "Zagazig",
     "هيليوبليس شيراتون": "heliopolis sheraton",
     "الشروق 2": "Shrouk 2",
-    "زايد 2": "Zayed 2"
+    "زايد 2": "Zayed 2",
+    "التجمع البنفسج": "Elbanafsge",
+    "التجمع الثالث روك فيرا": "RockVera"
 }
 
 branches_dict = {
@@ -482,6 +506,7 @@ branches_dict = {
         "EG_Cairo_DS_37_Tagamoa-Awal": "التجمع الاول",
         "EG_Cairo_DS_8": "مدينة نصر",
         "EG_faisal_DS_42": "فيصل",
+        "EG_Faisal Maryoteya (2)_DS_54": "فيصل 2 مريوطية",
         "EG_Hadayek October_DS_44": "حدائق اكتوبر",
         "EG_Ismailia_DS_34": "الاسماعيليه",
         "EG_Madinaty Craft_DS_39": "مدينتي كرافت",
@@ -501,11 +526,190 @@ branches_dict = {
         "EG_Zakazik_DS_33": "الزقازيق",
         "EG_Heliopolis_Sheraton_DS_52": "هيليوبليس شيراتون",
         "EG_Shrouk_ Mgawra (2)_DS_51": "الشروق 2",
-        "EG_Sheikh zayed (2)_DS_53": "زايد 2"
+        "EG_Sheikh zayed (2)_DS_53": "زايد 2",
+        "EG_Tagamoa_El Banafseg_DS_55": "التجمع البنفسج",
+        "EG_Rock Vera Mall_DS_56": "التجمع الثالث روك فيرا"
     }
 
 
 special_codes = {
         "EG_Alex East_DS_", "EG_Alex", "EG_Zahraa Maadi", "EG_Nasrcity", "EG_Mansoura", 
-        "EG_Tagamoa Golden", "EG_Tagamoa", "EG_Madinaty", "EG_Hadayek", "EG_October", "EG_Shrouk_", "EG_Mokatam", "EG_Sheikh"
+        "EG_Tagamoa Golden", "EG_Tagamoa", "EG_Madinaty", "EG_Hadayek", "EG_October", "EG_Shrouk_", "EG_Mokatam", "EG_Sheikh", "EG_Faisal"
     }
+
+
+
+
+
+
+
+import os
+import requests
+import io
+from datetime import datetime
+from typing import Optional
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+SUPABASE_URL = "https://rabwvltxgpdyvpmygdtc.supabase.co"
+API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhYnd2bHR4Z3BkeXZwbXlnZHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMzg4MTQsImV4cCI6MjA2NDgxNDgxNH0.hnQYr3jL0rLTNOGXE0EgF9wmd_bynff6JXtqwjCOc6Y"
+AUTHORIZATION = f"Bearer {API_KEY}"
+STORAGE_BUCKET = "order_files"
+TABLE_NAME = "orders"
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+
+
+def authenticate_gmail():
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+
+    return build('gmail', 'v1', credentials=creds)
+
+
+def upload_order_and_metadata(
+    file_bytes: bytes,
+    filename: str,
+    client: str,
+    order_type: str,
+    order_date: str,
+    delivery_date: str,
+    status: str = "Pending",
+    city: Optional[str] = None,
+    po_number: Optional[int] = None,
+):
+    object_name = f"{int(order_date.replace('-', ''))}-{filename}"
+    storage_url = f"{SUPABASE_URL}/storage/v1/object/{STORAGE_BUCKET}/{object_name}"
+
+    upload_response = requests.post(
+        storage_url,
+        headers={
+            "apikey": API_KEY,
+            "authorization": AUTHORIZATION,
+            "x-upsert": "false",
+        },
+        files={
+            "file": (filename, file_bytes, "application/zip")
+        }
+    )
+
+    if upload_response.status_code != 200:
+        raise Exception(f"Upload failed: {upload_response.text}")
+
+    file_url = f"{SUPABASE_URL}/storage/v1/object/public/{STORAGE_BUCKET}/{object_name}"
+    insert_payload = [{
+        "client": client,
+        "order_type": order_type,
+        "order_date": order_date,
+        "delivery_date": delivery_date,
+        "status": status,
+        "file_urls": [file_url],
+        "city": city,
+        "po_number": po_number
+    }]
+
+    insert_response = requests.post(
+        f"{SUPABASE_URL}/rest/v1/{TABLE_NAME}",
+        headers={
+            "apikey": API_KEY,
+            "authorization": AUTHORIZATION,
+            "content-type": "application/json",
+            "prefer": "return=representation",
+        },
+        json=insert_payload
+    )
+
+    if insert_response.status_code not in [200, 201]:
+        raise Exception(f"Insertion failed: {insert_response.text}")
+
+    return insert_response.json()
+
+
+
+
+
+
+ids_to_products = {
+    "6484932": "تفاح اخضر امريكى 1ك معبأ",
+    "6484870": "تفاح سكرى جالا 1ك معبأ",
+    "20077435": "باذنجان كوبى معبأ 1ك",
+    "6485996": "ليمون بلدى فاخر معبأ 250 جرام",
+    "8698992": "بنجر احمر معبأ 500 جرام",
+    "6485637": "جزر معبأ 500 جرام",
+    "6485706": "طماطم شيرى معبأ 250 جرام",
+    "6485838": "فلفل الوان معبأ 500 جرام",
+    "20076507": "كزبرة معبأ",
+    "6485672": "خيار فاخر معبأ 1ك",
+    "20076505": "شبت معبأ",
+    "6484003": "باذنجان للحشو 350جم",
+    "8698619": "زنجبيل 100 جرام معبأ",
+    "6485525": "بصل ابيض معبأ 1ك",
+    "6485820": "فلفل اخضر كوبي 250جم",
+    "20076511": "بصل اخضر معبأ",
+    "6485785": "فلفل اخضر حار معبأ 250 جرام",
+    "20076502": "زعتر فريش معبأ",
+    "6486077": "كابوتشى معبأ",
+    "6484774": "افوكادو 500 جرام",
+    "6484824": "تفاح احمر مستورد 1ك معبأ",
+    "6484967": "تفاح اصفر ايطالى 1ك معبأ",
+    "6484997": "كيوي فاخر 250 جرام معبأ",
+    "20076130": "موز بلدي فاخر 1ك معبأ",
+    "6484550": "محشى مشكل فريش 350 جرام",
+    "20072711": "تفاح مشكل 1كجم",
+    "6484706": "مشروم 200 جرام معبأ",
+    "6484357": "عبوة ثوم مفصص 100 جرام",
+    "6485610": "بطاطس معبأ 1ك",
+    "6484454": "فاصوليا مقطعة فريش 350 جرام",
+    "6485575": "بصل احمر معبأ 1ك",
+    "20076497": "روزمارى فريش معبأ",
+    "20076494": "جرجير معبأ",
+    "6484405": "سوتيه فريش 350 جرام",
+    "6485745": "طماطم فاخر معبأ 1ك",
+    "20076514": "كوسة معبأ 500 جرام",
+    "6484515": "كوسة مقورة فريش 350 جرام",
+    "6485351": "مانجو عويس 1 ك",
+    "6485090": "مانجو صديقة 1ك",
+    "32208358": "نعناع 50 جرام",
+    # Review from here
+    "20072711": "تفاح مشكل 1كجم",
+    "20076127": "كنتالوب 2ك معبأ",
+    "20076133": "خوخ سكري 1 كجم",
+    "20076483": "ثوم صيني ابيض 200جم",
+    "20072717": "بطيخ",
+    "20076498": "ريحان اخضر معبأ",
+    "20076506": "كرفس فرنساوي 250 جرام",
+    "20076509": "خس بلدي فاخر معبأ",
+    "20077433": "عنب ايرلي سويت ابيض 1ك",
+    "20076488": "فجل احمر 500 جرام",
+    "20077434": "عنب فليم احمر 1ك",
+    "6485045":"موز مستورد 1ك",
+    "6485132": "مانجو زبدية 1ك",
+    "20076491": "بقدونس معبأ",
+    "38257420": "برقوق احمر محلي 1ك",
+    "38257421": "ملوخية جاهزة500جم",
+    "38257422": "مانجو سكري 1 ك",
+    "6485249": "عنب اسود 1ك",
+    "6485401": "مانجو فص عويس 500 جم",
+    "6486150": "كرنب احمر سلطة معبأ",
+    "20076123": "برتقال عصير 2ك معبأ",
+    "6485472": "بلح برحي 500 جم",
+    "20072706": "اناناس سكري فاخر معبأ",
+    "6484651": "رمان 1كجم",
+    "6485878": "ليمون اضاليا 500 جرام",
+    "6486032": "ذرة سكري 2 قطعه",
+    "6486117": "كرنب ابيض سلطة معبأ",
+    "7454579": "يوسفي بلدي 1كجم",
+    "7455594": "برتقال بسرة 1ك",
+    "8698441": "يوسفي موركت 1ك"
+}
